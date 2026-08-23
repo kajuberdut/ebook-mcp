@@ -2,6 +2,7 @@ import json
 import logging
 import sys
 import tempfile
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -150,7 +151,7 @@ class TestSetupLogger:
                 from ebook_mcp.tools.logger_config import get_default_log_dir
 
                 result = get_default_log_dir()
-                assert result == temp_dir
+                assert result == Path(temp_dir)
 
     def test_setup_logger_creates_directory(self):
         """Test that setup_logger creates logs directory"""
