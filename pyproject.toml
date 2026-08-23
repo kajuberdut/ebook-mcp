@@ -53,3 +53,6 @@ format = "ruff format ."
 format-check = "ruff format --check ."
 test = "pytest"
 check = ["format-check", "lint"]
+compose-up = "docker compose up -d"
+compose-inspector = "docker compose -f docker-compose.yml -f docker-compose.inspector.yml up"
+compose = "ebook_mcp.tools.docker_cli:run_compose"
