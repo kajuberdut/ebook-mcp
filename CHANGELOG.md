@@ -11,9 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI Entry Point**: Fixed `cli_entry()` in `main.py` to run the module-level `FastMCP` server with all registered tools instead of instantiating an empty server
 - **Module Execution**: Added `__main__.py` to support launching server via `python -m ebook_mcp`
 
+### 🔒 Security
+- **Path Traversal Protection & Security Validation**: Added `src/ebook_mcp/tools/security.py` module to resolve paths safely, enforce extension whitelists (`.epub`, `.pdf`), validate parameter bounds (`page_number >= 1`), and enforce optional directory scoping via `EBOOK_MCP_ALLOWED_DIR`.
+
 ### 🌟 Added
+- **FastMCP 3.x Server Instructions**: Added server-level AI instructions to `FastMCP("ebook-mcp", instructions=...)` guiding LLM tools usage.
+- **Native FastMCP Prompts**: Added `@mcp.prompt()` templates for `summarize_chapter` and `generate_quiz`.
+- **Docker/SSE Transport Flexibility**: Updated `cli_entry()` to support running over SSE/HTTP (`EBOOK_MCP_TRANSPORT=sse`, `EBOOK_MCP_HOST`, `EBOOK_MCP_PORT`) as well as standard `stdio`.
 - **Developer Tooling**: Added `ruff` and `poethepoet` to dev optional-dependencies in `pyproject.toml`
 - **Task Automation**: Configured `poe` tasks for `lint`, `lint-fix`, `format`, `format-check`, `check`, and `test`
+
 
 ### 🔧 Refactored
 - **Python 3.12 Target Upgrade**: Upgraded `requires-python = ">=3.12"` and Ruff target version `py312` in `pyproject.toml`

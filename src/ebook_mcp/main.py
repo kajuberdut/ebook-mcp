@@ -1,29 +1,26 @@
 import logging
+import os
 from collections.abc import Callable
 from functools import wraps
 
 from mcp.server.fastmcp import FastMCP
 
-from ebook_mcp.tools import epub_helper, pdf_helper
+from ebook_mcp.tools import epub_helper, pdf_helper, security
 from ebook_mcp.tools.logger_config import setup_logger
 
 
 def handle_mcp_errors[T](func: Callable[..., T]) -> Callable[..., T]:
-    """
-    Decorator to handle common MCP tool errors uniformly.
-
-    This decorator catches FileNotFoundError and other exceptions,
-    re-raises them with consistent error messages.
-    """
+    """Decorator to handle common MCP tool errors uniformly."""
 
     @wraps(func)
     def wrapper(*args, **kwargs) -> T:
         try:
             return func(*args, **kwargs)
-        except FileNotFoundError as e:
-            raise FileNotFoundError(str(e))
+        except (FileNotFoundError, security.SecurityValidationError, ValueError) as e:
+            if isinstance(e, FileNotFoundError):
+                raise FileNotFoundError(str(e))
+            raise ValueError(str(e))
         except (epub_helper.EpubProcessingError, pdf_helper.PdfProcessingError) as e:
-            # Re-raise custom exceptions as-is to preserve detailed error information
             raise e
         except Exception as e:
             raise Exception(str(e))
@@ -32,17 +29,16 @@ def handle_mcp_errors[T](func: Callable[..., T]) -> Callable[..., T]:
 
 
 def handle_pdf_errors[T](func: Callable[..., T]) -> Callable[..., T]:
-    """
-    Decorator to handle PDF-specific errors.
-
-    Some PDF functions don't need FileNotFoundError handling
-    as they handle it internally.
-    """
+    """Decorator to handle PDF-specific errors."""
 
     @wraps(func)
     def wrapper(*args, **kwargs) -> T:
         try:
             return func(*args, **kwargs)
+        except (FileNotFoundError, security.SecurityValidationError, ValueError) as e:
+            if isinstance(e, FileNotFoundError):
+                raise FileNotFoundError(str(e))
+            raise ValueError(str(e))
         except Exception as e:
             raise Exception(str(e))
 
@@ -52,80 +48,80 @@ def handle_pdf_errors[T](func: Callable[..., T]) -> Callable[..., T]:
 logger = logging.getLogger(__name__)
 
 
-# Initialize FastMCP server
-mcp = FastMCP("ebook-MCP")
+# Initialize FastMCP server with instructions
+mcp = FastMCP(
+    "ebook-mcp",
+    instructions=(
+        "Ebook-MCP is a Model Context Protocol server for processing EPUB and PDF e-books. "
+        "It provides standardized tools to extract metadata, table of contents, and content. "
+        "Use EPUB tools for .epub files and PDF tools for .pdf files. "
+        "Always supply absolute file paths."
+    ),
+)
+
+
+# FastMCP Prompts
+@mcp.prompt()
+def summarize_chapter(book_path: str, chapter_identifier: str) -> str:
+    """Generate a prompt asking the AI model to summarize a specific chapter of an e-book."""
+    return (
+        f"Please analyze and summarize the content of chapter '{chapter_identifier}' "
+        f"from the e-book at path '{book_path}'. "
+        "Highlight key takeaways, core concepts, and main arguments."
+    )
+
+
+@mcp.prompt()
+def generate_quiz(book_path: str, chapter_identifier: str, num_questions: int = 5) -> str:
+    """Generate a prompt asking the AI model to create quiz questions from a chapter."""
+    return (
+        f"Based on the content of chapter '{chapter_identifier}' from path '{book_path}', "
+        f"generate a {num_questions}-question study quiz with questions, "
+        "answer key, and explanations."
+    )
+
 
 
 # EPUB related tools
 @mcp.tool()
 @handle_mcp_errors
 def get_all_epub_files(path: str) -> list[str]:
-    """Get all epub files in a given path."""
-    return epub_helper.get_all_epub_files(path)
+    """Get all EPUB files in a given directory path."""
+    clean_path = str(security.validate_file_path(path, must_exist=False))
+    return epub_helper.get_all_epub_files(clean_path)
 
 
 @mcp.tool()
 @handle_mcp_errors
 def get_epub_metadata(epub_path: str) -> dict[str, str | list[str]]:
-    """Get metadata of a given ebook.
-
-    Args:
-        epub_path: Full path to the ebook file.eg. "/Users/macbook/Downloads/test.epub"
-
-    Returns:
-        List[Tuple[str, str]]: Return a list, each element is a Tuple, contains key and value of metadata
-
-
-    Raises:
-        FileNotFoundError: Raises when the epub file not found
-        Exception: Raisers when running into parsing error of epub file
-    """
-    logger.debug(f"Getting ebook metadata: {epub_path}")
-    return epub_helper.get_meta(epub_path)
+    """Get metadata from an EPUB ebook file."""
+    clean_path = str(
+        security.validate_file_path(epub_path, allowed_extensions={".epub"}, must_exist=False)
+    )
+    logger.debug(f"Getting ebook metadata: {clean_path}")
+    return epub_helper.get_meta(clean_path)
 
 
 @mcp.tool()
 @handle_mcp_errors
 def get_epub_toc(epub_path: str) -> list[tuple[str, str]]:
-    """Get table of contents of a given EPUB file.
-
-    Args:
-        epub_path: Full path to the ebook file.eg. "/Users/macbook/Downloads/test.epub"
-
-    Returns:
-        List[Tuple[str, str]]: List of TOC entries, each entry is a tuple of (title, href)
-
-    Raises:
-        FileNotFoundError: Raises when the EPUB file not found
-        Exception: Raisers when running into parsing error of EPUB file
-    """
-    logger.debug(f"calling get_epub_toc: {epub_path}")
-    return epub_helper.get_toc(epub_path)
+    """Get table of contents of an EPUB file."""
+    clean_path = str(
+        security.validate_file_path(epub_path, allowed_extensions={".epub"}, must_exist=False)
+    )
+    logger.debug(f"calling get_epub_toc: {clean_path}")
+    return epub_helper.get_toc(clean_path)
 
 
 @mcp.tool()
 @handle_mcp_errors
 def get_epub_chapter_markdown(epub_path: str, chapter_id: str) -> str:
-    """Get content of a given chapter using the improved extraction method.
-
-    ✅ RECOMMENDED: This tool fixes the truncation issue in the original version when processing subchapters.
-    It can correctly handle EPUB files with subchapters and provide complete chapter content.
-
-    This function uses extract_chapter_html which properly handles subchapters
-    and provides accurate chapter boundaries, fixing the issue where subchapters
-    in the TOC cause premature truncation of chapter content.
-
-    Args:
-        epub_path: Full path to the ebook file. eg. "/Users/macbook/Downloads/test.epub"
-        chapter_id: Chapter id of the chapter to get content (e.g., "chapter1.xhtml#section1_3")
-
-    Returns:
-        str: Chapter content in markdown format
-    """
-    logger.debug(f"calling get_epub_chapter_markdown: {epub_path}, chapter ID: {chapter_id}")
-    book = epub_helper.read_epub(epub_path)
-
-    # Use the improved version
+    """Get content of an EPUB chapter in markdown format by its chapter ID/href."""
+    clean_path = str(
+        security.validate_file_path(epub_path, allowed_extensions={".epub"}, must_exist=False)
+    )
+    logger.debug(f"calling get_epub_chapter_markdown: {clean_path}, chapter ID: {chapter_id}")
+    book = epub_helper.read_epub(clean_path)
     return epub_helper.extract_chapter_markdown(book, chapter_id)
 
 
@@ -133,101 +129,80 @@ def get_epub_chapter_markdown(epub_path: str, chapter_id: str) -> str:
 @mcp.tool()
 @handle_mcp_errors
 def get_all_pdf_files(path: str) -> list[str]:
-    """Get all PDF files in a given path."""
-    return pdf_helper.get_all_pdf_files(path)
+    """Get all PDF files in a given directory path."""
+    clean_path = str(security.validate_file_path(path, must_exist=False))
+    return pdf_helper.get_all_pdf_files(clean_path)
 
 
 @mcp.tool()
 @handle_mcp_errors
 def get_pdf_metadata(pdf_path: str) -> dict[str, str | list[str]]:
-    """Get metadata of a given PDF file.
-
-    Args:
-        pdf_path: Full path to the PDF file.eg. "/Users/macbook/Downloads/test.pdf"
-
-    Returns:
-        Dict[str, Union[str, List[str]]]: Dictionary containing metadata
-
-    Raises:
-        FileNotFoundError: Raises when the PDF file not found
-        Exception: Raisers when running into parsing error of PDF file
-    """
-    logger.debug(f"calling get_pdf_metadata: {pdf_path}")
-    return pdf_helper.get_meta(pdf_path)
+    """Get metadata of a PDF file."""
+    clean_path = str(
+        security.validate_file_path(pdf_path, allowed_extensions={".pdf"}, must_exist=False)
+    )
+    logger.debug(f"calling get_pdf_metadata: {clean_path}")
+    return pdf_helper.get_meta(clean_path)
 
 
 @mcp.tool()
 @handle_mcp_errors
 def get_pdf_toc(pdf_path: str) -> list[tuple[str, int]]:
-    """Get table of contents of a given PDF file.
-
-    Args:
-        pdf_path: Full path to the PDF file.eg. "/Users/macbook/Downloads/test.pdf"
-
-    Returns:
-        List[Tuple[str, int]]: List of TOC entries, each entry is a tuple of (title, page_number)
-
-    Raises:
-        FileNotFoundError: Raises when the PDF file not found
-        Exception: Raisers when running into parsing error of PDF file
-    """
-    logger.debug(f"calling get_pdf_toc: {pdf_path}")
-    return pdf_helper.get_toc(pdf_path)
+    """Get table of contents of a PDF file."""
+    clean_path = str(
+        security.validate_file_path(pdf_path, allowed_extensions={".pdf"}, must_exist=False)
+    )
+    logger.debug(f"calling get_pdf_toc: {clean_path}")
+    return pdf_helper.get_toc(clean_path)
 
 
 @mcp.tool()
 @handle_pdf_errors
 def get_pdf_page_text(pdf_path: str, page_number: int) -> str:
-    """Get text content of a specific page in PDF file.
-
-    Args:
-        pdf_path: Full path to the PDF file.eg. "/Users/macbook/Downloads/test.pdf"
-        page_number: Page number to extract (1-based index)
-
-    Returns:
-        str: Extracted text content
-    """
-    logger.debug(f"calling get_pdf_page_text: {pdf_path}, page: {page_number}")
-    return pdf_helper.extract_page_text(pdf_path, page_number)
+    """Get plain text content of a specific page in a PDF file (1-based index)."""
+    clean_path = str(
+        security.validate_file_path(pdf_path, allowed_extensions={".pdf"}, must_exist=False)
+    )
+    clean_page = security.validate_page_number(page_number)
+    logger.debug(f"calling get_pdf_page_text: {clean_path}, page: {clean_page}")
+    return pdf_helper.extract_page_text(clean_path, clean_page)
 
 
 @mcp.tool()
 @handle_pdf_errors
 def get_pdf_page_markdown(pdf_path: str, page_number: int) -> str:
-    """Get markdown formatted content of a specific page in PDF file.
-
-    Args:
-        pdf_path: Full path to the PDF file.eg. "/Users/macbook/Downloads/test.pdf"
-        page_number: Page number to extract (1-based index)
-
-    Returns:
-        str: Markdown formatted text
-    """
-    logger.debug(f"calling get_pdf_page_markdown: {pdf_path}, page: {page_number}")
-    return pdf_helper.extract_page_markdown(pdf_path, page_number)
+    """Get markdown formatted content of a specific page in a PDF file (1-based index)."""
+    clean_path = str(
+        security.validate_file_path(pdf_path, allowed_extensions={".pdf"}, must_exist=False)
+    )
+    clean_page = security.validate_page_number(page_number)
+    logger.debug(f"calling get_pdf_page_markdown: {clean_path}, page: {clean_page}")
+    return pdf_helper.extract_page_markdown(clean_path, clean_page)
 
 
 @mcp.tool()
 @handle_pdf_errors
 def get_pdf_chapter_content(pdf_path: str, chapter_title: str) -> tuple[str, list[int]]:
-    """Get content of a specific chapter in PDF file by its title.
-
-    Args:
-        pdf_path: Full path to the PDF file.eg. "/Users/macbook/Downloads/test.pdf"
-        chapter_title: Title of the chapter to extract
-
-    Returns:
-        Tuple[str, List[int]]: Tuple containing (chapter_content, page_numbers)
-    """
-    logger.debug(f"calling get_pdf_chapter_content: {pdf_path}, chapter: {chapter_title}")
-    return pdf_helper.extract_chapter_by_title(pdf_path, chapter_title)
+    """Get content of a specific chapter in a PDF file by its title."""
+    clean_path = str(
+        security.validate_file_path(pdf_path, allowed_extensions={".pdf"}, must_exist=False)
+    )
+    logger.debug(f"calling get_pdf_chapter_content: {clean_path}, chapter: {chapter_title}")
+    return pdf_helper.extract_chapter_by_title(clean_path, chapter_title)
 
 
 # Entry point for the package CLI (ebook-mcp)
 def cli_entry():
     setup_logger()
-    logger.info("Starting ebook-mcp server")
-    mcp.run(transport="stdio")
+    transport = os.getenv("EBOOK_MCP_TRANSPORT", "stdio").lower()
+    host = os.getenv("EBOOK_MCP_HOST", "0.0.0.0")
+    port = int(os.getenv("EBOOK_MCP_PORT", "8000"))
+
+    logger.info(f"Starting ebook-mcp server (transport={transport})")
+    if transport == "sse":
+        mcp.run(transport="sse", host=host, port=port)
+    else:
+        mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
