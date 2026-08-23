@@ -11,7 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI Entry Point**: Fixed `cli_entry()` in `main.py` to run the module-level `FastMCP` server with all registered tools instead of instantiating an empty server
 - **Module Execution**: Added `__main__.py` to support launching server via `python -m ebook_mcp`
 
+### 🌟 Added
+- **Developer Tooling**: Added `ruff` and `poethepoet` to dev optional-dependencies in `pyproject.toml`
+- **Task Automation**: Configured `poe` tasks for `lint`, `lint-fix`, `format`, `format-check`, `check`, and `test`
+
 ## [0.1.7] - 2025-08-06
+
 
 
 ### 🔧 Refactored
