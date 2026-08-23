@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
 
 from .logger_config import get_logger, log_operation
@@ -65,7 +65,10 @@ def get_all_epub_files(path: str) -> List[str]:
     """
     Get all EPUB files in the specified path
     """
-    return [f for f in os.listdir(path) if f.endswith(".epub")]
+    p = Path(path)
+    if not p.is_dir():
+        return []
+    return [f.name for f in p.glob("*.epub") if f.is_file()]
 
 
 @log_operation("epub_toc_extraction")
@@ -84,7 +87,7 @@ def get_toc(epub_path: str) -> List[Tuple[str, str]]:
         Exception: If the file is not a valid EPUB or parsing fails
     """
     try:
-        if not os.path.exists(epub_path):
+        if not Path(epub_path).exists():
             logger.error("EPUB file not found", file_path=epub_path, operation="toc_extraction")
             raise FileNotFoundError(f"EPUB file not found: {epub_path}")
 
@@ -148,7 +151,7 @@ def get_meta(epub_path: str) -> Dict[str, Union[str, List[str]]]:
         Exception: If the file is not a valid EPUB or parsing fails
     """
     try:
-        if not os.path.exists(epub_path):
+        if not Path(epub_path).exists():
             logger.error(
                 "EPUB file not found", file_path=epub_path, operation="metadata_extraction"
             )

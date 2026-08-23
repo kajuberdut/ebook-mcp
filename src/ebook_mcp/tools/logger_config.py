@@ -8,6 +8,8 @@ from datetime import datetime
 from functools import wraps
 from pathlib import Path
 
+from platformdirs import user_state_dir
+
 
 class StructuredFormatter(logging.Formatter):
     """Custom formatter for structured JSON logging"""
@@ -97,27 +99,26 @@ class StructuredLogger:
         self._log_with_context(logging.CRITICAL, message, **context)
 
 
-def get_default_log_dir() -> str:
-    """Get opinionated Linux log directory using XDG state specification.
+def get_default_log_dir() -> Path:
+    """Get opinionated Linux log directory using platformdirs (XDG state dir).
 
     1. EBOOK_MCP_LOG_DIR environment variable (if set)
-    2. $XDG_STATE_HOME/ebook-mcp/logs (defaulting to ~/.local/state/ebook-mcp/logs)
+    2. platformdirs user_state_dir("ebook-mcp") / "logs" (~/.local/state/ebook-mcp/logs)
     3. Fallback to temp directory if target directory is not writable
     """
     env_dir = os.getenv("EBOOK_MCP_LOG_DIR")
     if env_dir:
         log_dir = Path(env_dir)
     else:
-        xdg_state = os.getenv("XDG_STATE_HOME", str(Path.home() / ".local" / "state"))
-        log_dir = Path(xdg_state) / "ebook-mcp" / "logs"
+        log_dir = Path(user_state_dir("ebook-mcp", appauthor=False)) / "logs"
 
     try:
         log_dir.mkdir(parents=True, exist_ok=True)
-        return str(log_dir)
+        return log_dir
     except (PermissionError, OSError):
         temp_dir = Path(tempfile.gettempdir()) / "ebook-mcp" / "logs"
         temp_dir.mkdir(parents=True, exist_ok=True)
-        return str(temp_dir)
+        return temp_dir
 
 
 def setup_logger(level: str = None, log_file: str = None):
@@ -136,7 +137,7 @@ def setup_logger(level: str = None, log_file: str = None):
         log_file = f"ebook_mcp_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
     log_dir = get_default_log_dir()
-    log_file_path = os.path.join(log_dir, log_file)
+    log_file_path = log_dir / log_file
 
     root_logger = logging.getLogger()
     root_logger.setLevel(getattr(logging, level.upper(), logging.INFO))

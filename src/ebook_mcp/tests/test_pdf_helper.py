@@ -83,8 +83,11 @@ class TestPdfHelper:
             pdf_path = f.name
 
         try:
-            with patch("os.path.getsize", return_value=1024):
+            mock_stat = Mock()
+            mock_stat.st_size = 1024
+            with patch("ebook_mcp.tools.pdf_helper.Path.stat", return_value=mock_stat):
                 result = get_meta(pdf_path)
+
                 expected_fields = {
                     "title",
                     "author",
@@ -135,7 +138,9 @@ class TestPdfHelper:
             pdf_path = f.name
 
         try:
-            with patch("os.path.getsize", return_value=512):
+            mock_stat = Mock()
+            mock_stat.st_size = 512
+            with patch("ebook_mcp.tools.pdf_helper.Path.stat", return_value=mock_stat):
                 result = get_meta(pdf_path)
                 assert result["pages"] == 2
                 assert result["file_size"] == 512

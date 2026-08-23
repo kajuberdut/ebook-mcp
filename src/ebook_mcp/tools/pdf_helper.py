@@ -1,5 +1,5 @@
-import os
 from io import StringIO
+from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 import pymupdf as fitz  # PyMuPDF
@@ -29,7 +29,10 @@ def get_all_pdf_files(path: str) -> List[str]:
     """
     Get all PDF files in the specified path
     """
-    return [f for f in os.listdir(path) if f.endswith(".pdf")]
+    p = Path(path)
+    if not p.is_dir():
+        return []
+    return [f.name for f in p.glob("*.pdf") if f.is_file()]
 
 
 @log_operation("pdf_metadata_extraction")
@@ -48,7 +51,8 @@ def get_meta(pdf_path: str) -> Dict[str, Union[str, List[str]]]:
         Exception: If the file is not a valid PDF or parsing fails
     """
     try:
-        if not os.path.exists(pdf_path):
+        p = Path(pdf_path)
+        if not p.exists():
             logger.error("PDF file not found", file_path=pdf_path, operation="metadata_extraction")
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
@@ -82,7 +86,7 @@ def get_meta(pdf_path: str) -> Dict[str, Union[str, List[str]]]:
 
         # Add additional information
         meta["pages"] = doc.page_count
-        meta["file_size"] = os.path.getsize(pdf_path)
+        meta["file_size"] = p.stat().st_size
 
         # Get PDF version and encryption info
         try:
@@ -150,7 +154,7 @@ def get_toc(pdf_path: str) -> List[Tuple[str, int]]:
         Exception: If the file is not a valid PDF or parsing fails
     """
     try:
-        if not os.path.exists(pdf_path):
+        if not Path(pdf_path).exists():
             logger.error("PDF file not found", file_path=pdf_path, operation="toc_extraction")
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 

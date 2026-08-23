@@ -7,7 +7,6 @@ from mcp.server.fastmcp import FastMCP
 from ebook_mcp.tools import epub_helper, pdf_helper
 from ebook_mcp.tools.logger_config import setup_logger
 
-
 # Type variable for generic function return type
 T = TypeVar("T")
 
