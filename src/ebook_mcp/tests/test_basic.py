@@ -1,5 +1,5 @@
-import os
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -10,73 +10,69 @@ import pytest
 def test_get_all_epub_files_basic():
     """Test basic EPUB file discovery without external dependencies"""
     with tempfile.TemporaryDirectory() as temp_dir:
+        p = Path(temp_dir)
         # Create mock EPUB files
         epub_files = ["book1.epub", "book2.epub", "document.txt"]
         for file in epub_files:
-            with open(os.path.join(temp_dir, file), "w") as f:
-                f.write("mock content")
+            (p / file).write_text("mock content")
 
         # Test the basic file discovery logic
-        result = [f for f in os.listdir(temp_dir) if f.endswith(".epub")]
+        result = [f.name for f in p.glob("*.epub") if f.is_file()]
         assert set(result) == {"book1.epub", "book2.epub"}
 
 
 def test_get_all_pdf_files_basic():
     """Test basic PDF file discovery without external dependencies"""
     with tempfile.TemporaryDirectory() as temp_dir:
+        p = Path(temp_dir)
         # Create mock PDF files
         pdf_files = ["document1.pdf", "document2.pdf", "text.txt"]
         for file in pdf_files:
-            with open(os.path.join(temp_dir, file), "w") as f:
-                f.write("mock content")
+            (p / file).write_text("mock content")
 
         # Test the basic file discovery logic
-        result = [f for f in os.listdir(temp_dir) if f.endswith(".pdf")]
+        result = [f.name for f in p.glob("*.pdf") if f.is_file()]
         assert set(result) == {"document1.pdf", "document2.pdf"}
 
 
 def test_file_not_found_error():
     """Test file not found error handling"""
     with pytest.raises(FileNotFoundError):
-        with open("/nonexistent/file.txt", "r") as f:
-            pass
+        open("/nonexistent/file.txt", "r")
 
 
 def test_temp_file_operations():
     """Test temporary file operations"""
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
         f.write("test content")
-        temp_path = f.name
+        temp_path = Path(f.name)
 
     try:
         # Verify file was created
-        assert os.path.exists(temp_path)
+        assert temp_path.exists()
 
         # Read content
-        with open(temp_path, "r") as f:
-            content = f.read()
+        content = temp_path.read_text()
         assert content == "test content"
     finally:
         # Clean up
-        if os.path.exists(temp_path):
-            os.unlink(temp_path)
+        temp_path.unlink(missing_ok=True)
 
 
 def test_directory_operations():
     """Test directory operations"""
     with tempfile.TemporaryDirectory() as temp_dir:
         # Create subdirectory
-        sub_dir = os.path.join(temp_dir, "subdir")
-        os.makedirs(sub_dir)
+        sub_dir = Path(temp_dir) / "subdir"
+        sub_dir.mkdir(parents=True, exist_ok=True)
 
         # Create files in subdirectory
         files = ["file1.txt", "file2.txt"]
         for file in files:
-            with open(os.path.join(sub_dir, file), "w") as f:
-                f.write(f"content for {file}")
+            (sub_dir / file).write_text(f"content for {file}")
 
         # List files
-        result = os.listdir(sub_dir)
+        result = [f.name for f in sub_dir.iterdir()]
         assert set(result) == set(files)
 
 
@@ -91,6 +87,7 @@ def test_directory_operations():
 def test_file_filtering(file_extension, expected_count):
     """Test file filtering by extension"""
     with tempfile.TemporaryDirectory() as temp_dir:
+        p = Path(temp_dir)
         # Create test files
         test_files = [
             "book1.epub",
@@ -102,11 +99,10 @@ def test_file_filtering(file_extension, expected_count):
         ]
 
         for file in test_files:
-            with open(os.path.join(temp_dir, file), "w") as f:
-                f.write("content")
+            (p / file).write_text("content")
 
         # Filter by extension
-        result = [f for f in os.listdir(temp_dir) if f.endswith(file_extension)]
+        result = [f.name for f in p.glob(f"*{file_extension}") if f.is_file()]
         assert len(result) == expected_count
 
 
@@ -124,8 +120,8 @@ def test_mock_basic_operations():
 
 def test_patch_basic():
     """Test basic patch functionality"""
-    with patch("os.path.exists", return_value=False):
-        assert not os.path.exists("/any/path")
+    with patch.object(Path, "exists", return_value=False):
+        assert not Path("/any/path").exists()
 
-    with patch("os.path.exists", return_value=True):
-        assert os.path.exists("/any/path")
+    with patch.object(Path, "exists", return_value=True):
+        assert Path("/any/path").exists()

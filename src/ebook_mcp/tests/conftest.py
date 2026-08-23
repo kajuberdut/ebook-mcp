@@ -1,5 +1,5 @@
-import os
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
@@ -69,6 +69,8 @@ def sample_pdf_files():
     return ["document1.pdf", "document2.pdf", "text.txt"]
 
 
+
+
 @pytest.fixture
 def temp_epub_file():
     """Create a temporary EPUB file for testing"""
@@ -79,8 +81,7 @@ def temp_epub_file():
     yield epub_path
 
     # Cleanup
-    if os.path.exists(epub_path):
-        os.unlink(epub_path)
+    Path(epub_path).unlink(missing_ok=True)
 
 
 @pytest.fixture
@@ -93,5 +94,4 @@ def temp_pdf_file():
     yield pdf_path
 
     # Cleanup
-    if os.path.exists(pdf_path):
-        os.unlink(pdf_path)
+    Path(pdf_path).unlink(missing_ok=True)

@@ -4,6 +4,7 @@ import logging
 import os
 from contextlib import AsyncExitStack
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -18,11 +19,11 @@ load_dotenv()
 def setup_logging():
     """Configure logging settings"""
     # Create logs directory if it doesn't exist
-    if not os.path.exists("logs"):
-        os.makedirs("logs")
+    log_dir = Path("logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate log filename with timestamp
-    log_filename = f"logs/deepseek_mcp_client_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    log_filename = log_dir / f"deepseek_mcp_client_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
     # Configure logging
     logging.basicConfig(

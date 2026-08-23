@@ -1,8 +1,8 @@
 import asyncio
 import logging
-import os
 from contextlib import AsyncExitStack
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from anthropic import Anthropic
@@ -12,14 +12,14 @@ from mcp.client.stdio import stdio_client
 
 load_dotenv()
 
-# Configure logging
-log_dir = "logs"
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
+from pathlib import Path
 
-log_file = os.path.join(
-    log_dir, f"anthropic_mcp_client_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-)
+# Configure logging
+log_dir = Path("logs")
+log_dir.mkdir(parents=True, exist_ok=True)
+
+log_file = log_dir / f"anthropic_mcp_client_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

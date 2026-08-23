@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🔧 Refactored
 - **Cross-Platform Directory Resolution**: Integrated `platformdirs>=4.11.3` for standard Linux XDG state directory path resolution (`platformdirs.user_state_dir("ebook-mcp")`)
-- **Modern File Path Management**: Refactored file system operations across `logger_config.py`, `epub_helper.py`, `pdf_helper.py`, and test suites to use `pathlib.Path` instead of legacy `os.path` and `os.listdir`
+- **Complete Repository Pathlib Adoption**: Refactored 100% of file system operations, path manipulation, and test suites across the repository to use `pathlib.Path` instead of legacy `os.path`, `os.listdir`, and `os.unlink`
+
 - **Opinionated Linux Logging**: Implemented XDG state directory specification (`$XDG_STATE_HOME/ebook-mcp/logs` / `~/.local/state/ebook-mcp/logs`) with `EBOOK_MCP_LOG_DIR` environment variable support
 - **MCP Transport Compatibility**: Directed console stream handler to `sys.stderr` to prevent MCP stdio protocol JSON-RPC corruption
 - **Import Side-Effect Elimination**: Deferred logger directory creation and handler setup to `cli_entry()` to guarantee side-effect free module imports
