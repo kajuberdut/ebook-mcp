@@ -1,12 +1,12 @@
 import logging
-import os
-from datetime import datetime
 from functools import wraps
 from typing import Callable, Dict, List, Tuple, TypeVar, Union
 
 from mcp.server.fastmcp import FastMCP
 
 from ebook_mcp.tools import epub_helper, pdf_helper
+from ebook_mcp.tools.logger_config import setup_logger
+
 
 # Type variable for generic function return type
 T = TypeVar("T")
@@ -53,16 +53,6 @@ def handle_pdf_errors(func: Callable[..., T]) -> Callable[..., T]:
     return wrapper
 
 
-log_dir = "logs"
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
-
-log_file = os.path.join(log_dir, f"ebook-mcp_server_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
-)
 logger = logging.getLogger(__name__)
 
 
@@ -239,6 +229,7 @@ def get_pdf_chapter_content(pdf_path: str, chapter_title: str) -> Tuple[str, Lis
 
 # Entry point for the package CLI (ebook-mcp)
 def cli_entry():
+    setup_logger()
     logger.info("Starting ebook-mcp server")
     mcp.run(transport="stdio")
 

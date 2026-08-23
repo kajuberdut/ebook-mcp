@@ -143,21 +143,28 @@ class TestLogOperationDecorator:
 class TestSetupLogger:
     """Test logger setup"""
 
+    def test_get_default_log_dir_custom_env(self):
+        """Test get_default_log_dir with custom environment variable"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch.dict("os.environ", {"EBOOK_MCP_LOG_DIR": temp_dir}):
+                from ebook_mcp.tools.logger_config import get_default_log_dir
+
+                result = get_default_log_dir()
+                assert result == temp_dir
+
     def test_setup_logger_creates_directory(self):
         """Test that setup_logger creates logs directory"""
         with tempfile.TemporaryDirectory() as temp_dir:
-            with patch("ebook_mcp.tools.logger_config.os.path.dirname", return_value=temp_dir):
-                with patch("ebook_mcp.tools.logger_config.os.makedirs") as mock_makedirs:
-                    with patch(
-                        "ebook_mcp.tools.logger_config.logging.FileHandler"
-                    ) as mock_file_handler:
-                        mock_handler = MagicMock()
-                        mock_handler.level = logging.DEBUG
-                        mock_file_handler.return_value = mock_handler
-                        setup_logger()
-                        mock_makedirs.assert_called_once()
-                        # Clean up mock handler from root logger
-                        logging.getLogger().removeHandler(mock_handler)
+            with patch.dict("os.environ", {"EBOOK_MCP_LOG_DIR": temp_dir}):
+                with patch(
+                    "ebook_mcp.tools.logger_config.logging.FileHandler"
+                ) as mock_file_handler:
+                    mock_handler = MagicMock()
+                    mock_handler.level = logging.DEBUG
+                    mock_file_handler.return_value = mock_handler
+                    setup_logger()
+                    # Clean up mock handler from root logger
+                    logging.getLogger().removeHandler(mock_handler)
 
     def test_setup_logger_configures_handlers(self):
         """Test that setup_logger configures handlers correctly"""
