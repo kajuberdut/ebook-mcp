@@ -144,9 +144,12 @@ class TestSetupLogger:
                 with patch('ebook_mcp.tools.logger_config.os.makedirs') as mock_makedirs:
                     with patch('ebook_mcp.tools.logger_config.logging.FileHandler') as mock_file_handler:
                         mock_handler = MagicMock()
+                        mock_handler.level = logging.DEBUG
                         mock_file_handler.return_value = mock_handler
                         setup_logger()
                         mock_makedirs.assert_called_once()
+                        # Clean up mock handler from root logger
+                        logging.getLogger().removeHandler(mock_handler)
     
     def test_setup_logger_configures_handlers(self):
         """Test that setup_logger configures handlers correctly"""
@@ -159,6 +162,7 @@ class TestSetupLogger:
             # Verify handlers were added
             mock_logger.addHandler.assert_called()
             assert mock_logger.addHandler.call_count == 2  # file and console handlers
+
 
 if __name__ == "__main__":
     # Import sys for exception testing
