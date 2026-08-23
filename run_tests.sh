@@ -1,39 +1,38 @@
 #!/bin/bash
 
-# Ebook-MCP 测试运行脚本
+# Ebook-MCP Test Runner Script
 
 echo "=========================================="
-echo "Ebook-MCP 单元测试运行器"
+echo "Ebook-MCP Unit Test Runner"
 echo "=========================================="
 
-# 检查是否安装了 pytest
+# Check if pytest is installed
 if ! command -v pytest &> /dev/null; then
-    echo "❌ pytest 未安装，请先安装: pip install pytest"
+    echo "❌ pytest is not installed. Please install it first: pip install pytest"
     exit 1
 fi
 
-# 设置测试目录
+# Set test directory
 TEST_DIR="src/ebook_mcp/tests"
 
-echo "📁 测试目录: $TEST_DIR"
+echo "📁 Test directory: $TEST_DIR"
 echo ""
 
-# 运行基本测试（推荐）
-echo "🧪 运行基本测试（不需要外部依赖）..."
+# Run basic tests
+echo "🧪 Running basic tests..."
 python -m pytest $TEST_DIR/test_basic.py -v
 BASIC_RESULT=$?
 
 echo ""
-echo "🧪 运行 EPUB 章节提取修复版本测试..."
+echo "🧪 Running EPUB chapter extraction tests..."
 python -m pytest $TEST_DIR/test_epub_chapter_extraction.py -v
 FIXED_RESULT=$?
 
-# 返回总体结果
+# Return overall result
 if [ $BASIC_RESULT -eq 0 ] && [ $FIXED_RESULT -eq 0 ]; then
-    echo "🎉 所有可用测试通过！"
+    echo "🎉 All available tests passed!"
     exit 0
 else
-    echo "⚠️  部分测试失败，请检查上述输出"
+    echo "⚠️  Some tests failed. Please check the output above."
     exit 1
 fi
- 
