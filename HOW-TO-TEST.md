@@ -99,7 +99,21 @@ uv run pytest src/ebook_mcp/tests/ -v
 uv run pytest src/ebook_mcp/tests/test_main.py -v
 ```
 
-### 方法 5: 运行基本测试（不需要外部依赖）
+### 方法 5: 使用 poe 任务运行器
+
+```bash
+# 运行测试套件
+uv run poe test
+
+# 运行代码检查与格式化校验 (ruff)
+uv run poe check
+
+# 运行 代码 lint (ruff)
+uv run poe lint
+```
+
+### 方法 6: 运行基本测试（不需要外部依赖）
+
 
 ```bash
 # 运行基本测试（推荐用于快速验证）
