@@ -2,7 +2,7 @@ import os
 from io import StringIO
 from typing import Dict, List, Tuple, Union
 
-import fitz  # PyMuPDF
+import pymupdf as fitz  # PyMuPDF
 
 from .logger_config import get_logger, log_operation
 

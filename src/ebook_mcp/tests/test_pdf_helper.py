@@ -11,9 +11,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 # Mock PyMuPDF
 try:
-    import fitz
+    import pymupdf as fitz
 except ImportError:
     fitz = Mock()
+
 
 from ebook_mcp.tools.pdf_helper import (
     extract_chapter_by_title,
