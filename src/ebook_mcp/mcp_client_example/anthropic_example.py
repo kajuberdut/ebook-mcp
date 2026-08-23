@@ -3,7 +3,6 @@ import logging
 from contextlib import AsyncExitStack
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
@@ -12,7 +11,6 @@ from mcp.client.stdio import stdio_client
 
 load_dotenv()
 
-from pathlib import Path
 
 # Configure logging
 log_dir = Path("logs")
@@ -39,10 +37,10 @@ class MCPClient:
 
     def __init__(self):
         # Initialize session and client objects
-        self.session: Optional[ClientSession] = None
+        self.session: ClientSession | None = None
         self.exit_stack = AsyncExitStack()
         self.anthropic = Anthropic()
-        self.messages: List[Dict[str, str]] = []
+        self.messages: list[dict[str, str]] = []
         self.max_messages = 20  # Maximum number of messages to keep in history
         self.max_tokens = (
             8000  # Maximum token count (using half of Claude 3.5 Sonnet's 16k context window)

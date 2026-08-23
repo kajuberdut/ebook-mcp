@@ -5,7 +5,6 @@ import os
 from contextlib import AsyncExitStack
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from dotenv import load_dotenv
 from mcp import ClientSession, StdioServerParameters
@@ -40,7 +39,7 @@ def setup_logging():
 class MCPClient:
     def __init__(self):
         # Initialize session and client objects
-        self.session: Optional[ClientSession] = None
+        self.session: ClientSession | None = None
         self.exit_stack = AsyncExitStack()
 
         # Initialize Deepseek client using OpenAI's client with custom base URL

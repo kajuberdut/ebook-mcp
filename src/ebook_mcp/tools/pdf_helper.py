@@ -1,6 +1,5 @@
 from io import StringIO
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
 
 import pymupdf as fitz  # PyMuPDF
 
@@ -25,7 +24,7 @@ class PdfProcessingError(Exception):
 logger = get_logger(__name__)
 
 
-def get_all_pdf_files(path: str) -> List[str]:
+def get_all_pdf_files(path: str) -> list[str]:
     """
     Get all PDF files in the specified path
     """
@@ -36,7 +35,7 @@ def get_all_pdf_files(path: str) -> List[str]:
 
 
 @log_operation("pdf_metadata_extraction")
-def get_meta(pdf_path: str) -> Dict[str, Union[str, List[str]]]:
+def get_meta(pdf_path: str) -> dict[str, str | list[str]]:
     """
     Get metadata from a PDF file using PyMuPDF
 
@@ -97,7 +96,7 @@ def get_meta(pdf_path: str) -> Dict[str, Union[str, List[str]]]:
                 meta["pdf_version"] = str(doc.version)
             else:
                 meta["pdf_version"] = "Unknown"
-        except:
+        except Exception:
             meta["pdf_version"] = "Unknown"
 
         meta["is_encrypted"] = doc.is_encrypted
@@ -109,7 +108,7 @@ def get_meta(pdf_path: str) -> Dict[str, Union[str, List[str]]]:
                 rect = first_page.rect
                 meta["page_width"] = rect.width
                 meta["page_height"] = rect.height
-            except:
+            except Exception:
                 # If we can't get page dimensions, skip it
                 pass
 
@@ -139,7 +138,7 @@ def get_meta(pdf_path: str) -> Dict[str, Union[str, List[str]]]:
 
 
 @log_operation("pdf_toc_extraction")
-def get_toc(pdf_path: str) -> List[Tuple[str, int]]:
+def get_toc(pdf_path: str) -> list[tuple[str, int]]:
     """
     Get the Table of Contents (TOC) from a PDF file
 
@@ -276,7 +275,7 @@ def extract_page_markdown(pdf_path: str, page_number: int) -> str:
         )
 
 
-def extract_chapter_by_title(pdf_path: str, chapter_title: str) -> Tuple[str, List[int]]:
+def extract_chapter_by_title(pdf_path: str, chapter_title: str) -> tuple[str, list[int]]:
     """
     Extract a chapter's content by its title from the TOC
 

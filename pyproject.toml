@@ -5,7 +5,7 @@ description = "An MCP server for chatting with ebooks (PDF/EPUB)."
 authors = [{ name = "onebird", email = "rymrocks@163.com" }]
 license = "Apache-2.0"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 
 dependencies = [
     "ebooklib>=0.20",
@@ -40,10 +40,11 @@ packages = ["src/ebook_mcp"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "UP"]
+
 
 [tool.poe.tasks]
 lint = "ruff check ."
