@@ -15,7 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Developer Tooling**: Added `ruff` and `poethepoet` to dev optional-dependencies in `pyproject.toml`
 - **Task Automation**: Configured `poe` tasks for `lint`, `lint-fix`, `format`, `format-check`, `check`, and `test`
 
-### 📝 Documentation
+### 🔧 Refactored
+- **Opinionated Linux Logging**: Implemented XDG state directory specification (`$XDG_STATE_HOME/ebook-mcp/logs` / `~/.local/state/ebook-mcp/logs`) with `EBOOK_MCP_LOG_DIR` environment variable support
+- **MCP Transport Compatibility**: Directed console stream handler to `sys.stderr` to prevent MCP stdio protocol JSON-RPC corruption
+- **Import Side-Effect Elimination**: Deferred logger directory creation and handler setup to `cli_entry()` to guarantee side-effect free module imports
+
 - **English Localization**: Translated `HOW-TO-TEST.md` and `run_tests.sh` to English
 
 ### 🗑️ Removed
