@@ -15,11 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Developer Tooling**: Added `ruff` and `poethepoet` to dev optional-dependencies in `pyproject.toml`
 - **Task Automation**: Configured `poe` tasks for `lint`, `lint-fix`, `format`, `format-check`, `check`, and `test`
 
-### 🔧 Refactored
-- **Modernized PyMuPDF Import**: Switched `import fitz` to `import pymupdf as fitz` to eliminate deprecation warnings
+### 📝 Documentation
+- **English Localization**: Translated `HOW-TO-TEST.md` and `run_tests.sh` to English
+
 ### 🗑️ Removed
+- **Non-English Resources**: Removed localized README files (`README-CN.md`, `README-DE.md`, `README-FR.md`, `README-JP.md`, `README-KR.md`, `mcp_client_example/README-CN.md`) and translation hook `.kiro/hooks/readme-translation-hook.kiro.hook`
 - **Leftover Backup File**: Removed leftover source backup file `src/ebook_mcp/tools/pdf_helper.py.backup`
 - **Orphaned Test**: Removed non-existent module test `src/ebook_mcp/tests/test_azw.py`
+
 
 
 

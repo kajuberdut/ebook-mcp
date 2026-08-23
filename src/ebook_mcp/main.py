@@ -87,7 +87,8 @@ def get_epub_metadata(epub_path: str) -> Dict[str, Union[str, List[str]]]:
         epub_path: Full path to the ebook file.eg. "/Users/macbook/Downloads/test.epub"
 
     Returns:
-        List[Tuple[str, str]]: Return a list，Each element is a Tuple，contains key and value of metadata
+        List[Tuple[str, str]]: Return a list, each element is a Tuple, contains key and value of metadata
+
 
     Raises:
         FileNotFoundError: Raises when the epub file not found
