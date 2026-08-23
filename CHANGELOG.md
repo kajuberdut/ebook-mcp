@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🌟 Added
+- **Developer Tooling**: Added `ruff` and `poethepoet` to dev optional-dependencies in `pyproject.toml`
+- **Task Automation**: Configured `poe` tasks for `lint`, `lint-fix`, `format`, `format-check`, `check`, and `test`
+
 ## [0.1.7] - 2025-08-06
+
 
 ### 🔧 Refactored
 - **Modernized Dependency Management**: Removed `requirements.txt`, fully using `pyproject.toml` for dependency management
