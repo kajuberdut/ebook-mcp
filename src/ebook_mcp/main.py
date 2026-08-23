@@ -229,15 +229,11 @@ def get_pdf_chapter_content(pdf_path: str, chapter_title: str) -> Tuple[str, Lis
     logger.debug(f"calling get_pdf_chapter_content: {pdf_path}, chapter: {chapter_title}")
     return pdf_helper.extract_chapter_by_title(pdf_path, chapter_title)
 
-if __name__ == "__main__":
-    # Initialize and run the server
-    logger.info("Server is starting.....")
+# Entry point for the package CLI (ebook-mcp)
+def cli_entry():
+    logger.info("Starting ebook-mcp server")
     mcp.run(transport='stdio')
 
-# as the cli entry after the "pip install ebook-mcp"
-def cli_entry():
-    import logging
-    logging.info("Starting ebook-mcp server")
-    from mcp.server.fastmcp import FastMCP
-    mcp = FastMCP("ebook-mcp")
-    mcp.run(transport='stdio')
+if __name__ == "__main__":
+    cli_entry()
+

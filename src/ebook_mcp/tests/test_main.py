@@ -238,18 +238,13 @@ class TestMainModule:
         assert hasattr(ebook_mcp.main, 'get_all_epub_files')
         assert hasattr(ebook_mcp.main, 'get_all_pdf_files')
     
-    @pytest.mark.skip(reason="Requires actual MCP server environment")
-    def test_cli_entry_function(self):
-        """Test cli_entry function"""
+    @patch('ebook_mcp.main.mcp.run')
+    def test_cli_entry_function(self, mock_mcp_run):
+        """Test cli_entry function launches the registered FastMCP server"""
         from ebook_mcp.main import cli_entry
-        
-        # Mock the FastMCP instance
-        mock_mcp_instance = Mock()
-        mock_mcp.return_value = mock_mcp_instance
-        
         cli_entry()
-        
-        mock_mcp_instance.run.assert_called_once_with(transport='stdio') 
+        mock_mcp_run.assert_called_once_with(transport='stdio')
+
 
 
 class TestDecorators:
