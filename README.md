@@ -176,14 +176,22 @@ uv run src/ebook_mcp/main.py
 
 ### Docker & Docker Compose Deployment
 
-#### Running with Docker Compose (Recommended)
+#### Running with Poe & Docker Compose (Recommended)
 
 1. Place your e-books (`.epub`, `.pdf`) in `./library/` (or customize the volume mount path in `docker-compose.yml`).
-2. Launch the containerized server over HTTP/SSE:
+2. Launch the containerized server:
 ```bash
-docker compose up -d
+uv run poe compose up
 ```
 The FastMCP server will run on `http://localhost:8000/sse`.
+
+#### Running with MCP Inspector UI
+
+To spin up the containerized stack along with the official **MCP Inspector** web UI:
+```bash
+uv run poe compose inspector
+```
+Open `http://localhost:5173` in your browser, select **SSE** transport, and connect to `http://ebook-mcp-server:8000/sse` or `http://localhost:8000/sse`.
 
 #### Building and Running via Docker CLI
 
@@ -198,6 +206,7 @@ docker run -d \
   -v /path/to/your/ebooks:/library:ro \
   ebook-mcp
 ```
+
 
 
 #### Configure the MCP in Cursor

@@ -15,8 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Path Traversal Protection & Security Validation**: Added `src/ebook_mcp/tools/security.py` module to resolve paths safely, enforce extension whitelists (`.epub`, `.pdf`), validate parameter bounds (`page_number >= 1`), and enforce optional directory scoping via `EBOOK_MCP_ALLOWED_DIR`.
 
 ### 🌟 Added
+- **MCP Inspector Compose Override**: Added `docker-compose.inspector.yml` mix-in file bundling the official `@modelcontextprotocol/inspector` on ports 5173/3000.
+- **Poe Compose Automation Tasks**: Configured `poe compose up`, `poe compose inspector`, `poe compose-up`, and `poe compose-inspector` tasks in `pyproject.toml` with dispatch helper `src/ebook_mcp/tools/docker_cli.py`.
 - **Multi-Stage Secure Dockerfile**: Created efficient multi-stage build (`Dockerfile`) using `ghcr.io/astral-sh/uv` builder stage and `python:3.12-slim-bookworm` runtime stage with non-root system user (`ebookmcp`), security options, and automated SSE health checks.
 - **Docker Compose Orchestration**: Created `docker-compose.yml` allowing e-book library mounting (`./library:/library:ro`), log persistence (`ebook-mcp-logs`), capabilities dropping (`cap_drop: [ALL]`), and `no-new-privileges` security flags.
+
 - **Docker Build Context Optimization**: Added `.dockerignore` to exclude cache, venvs, and development files from Docker build context.
 - **FastMCP 3.x Server Instructions**: Added server-level AI instructions to `FastMCP("ebook-mcp", instructions=...)` guiding LLM tools usage.
 - **Native FastMCP Prompts**: Added `@mcp.prompt()` templates for `summarize_chapter` and `generate_quiz`.

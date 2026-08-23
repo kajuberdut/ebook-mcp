@@ -81,7 +81,6 @@ def generate_quiz(book_path: str, chapter_identifier: str, num_questions: int = 
     )
 
 
-
 # EPUB related tools
 @mcp.tool()
 @handle_mcp_errors

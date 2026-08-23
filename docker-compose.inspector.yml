@@ -1,0 +1,12 @@
+services:
+  mcp-inspector:
+    image: node:20-alpine
+    container_name: mcp-inspector
+    command: npx -y @modelcontextprotocol/inspector
+    ports:
+      - "5173:5173"
+      - "3000:3000"
+    environment:
+      - HOST=0.0.0.0
+    depends_on:
+      - ebook-mcp
