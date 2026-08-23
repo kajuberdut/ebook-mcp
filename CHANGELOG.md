@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Developer Tooling**: Added `ruff` and `poethepoet` to dev optional-dependencies in `pyproject.toml`
 - **Task Automation**: Configured `poe` tasks for `lint`, `lint-fix`, `format`, `format-check`, `check`, and `test`
 
+### 🔧 Refactored
+- **Modernized PyMuPDF Import**: Switched `import fitz` to `import pymupdf as fitz` to eliminate deprecation warnings
+- **Dependency Upgrades**: Updated dependency versions in `pyproject.toml` (`fastmcp>=3.4.7`, `PyMuPDF>=1.28.2`, `pydantic>=2.13.4`, `typer>=0.27.1`, etc.)
+
+
 ## [0.1.7] - 2025-08-06
 
 
