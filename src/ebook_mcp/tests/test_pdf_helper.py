@@ -111,7 +111,6 @@ class TestPdfHelper:
         finally:
             Path(pdf_path).unlink(missing_ok=True)
 
-
     @patch("ebook_mcp.tools.pdf_helper.fitz.open")
     def test_get_meta_no_metadata(self, mock_fitz_open):
         """Test get_meta with no metadata"""
@@ -144,12 +143,12 @@ class TestPdfHelper:
                 result = get_meta(pdf_path)
                 assert result["pages"] == 2
                 assert result["file_size"] == 512
-                assert result["is_encrypted"] == False
+                assert not result["is_encrypted"]
+
                 assert "title" not in result
                 assert "author" not in result
         finally:
             Path(pdf_path).unlink(missing_ok=True)
-
 
     def test_get_meta_file_not_found(self):
         """Test get_meta with non-existent file"""
@@ -170,7 +169,6 @@ class TestPdfHelper:
                 get_meta(pdf_path)
         finally:
             Path(pdf_path).unlink(missing_ok=True)
-
 
     @patch("ebook_mcp.tools.pdf_helper.fitz.open")
     def test_get_toc_success(self, mock_fitz_open):
@@ -195,7 +193,6 @@ class TestPdfHelper:
         finally:
             Path(pdf_path).unlink(missing_ok=True)
 
-
     @patch("ebook_mcp.tools.pdf_helper.fitz.open")
     def test_get_toc_empty(self, mock_fitz_open):
         """Test get_toc with empty TOC"""
@@ -213,7 +210,6 @@ class TestPdfHelper:
             assert result == []
         finally:
             Path(pdf_path).unlink(missing_ok=True)
-
 
     def test_get_toc_file_not_found(self):
         """Test get_toc with non-existent file"""
@@ -235,7 +231,6 @@ class TestPdfHelper:
         finally:
             Path(pdf_path).unlink(missing_ok=True)
 
-
     @patch("ebook_mcp.tools.pdf_helper.fitz.open")
     def test_extract_page_text_success(self, mock_fitz_open):
         """Test extract_page_text successful case"""
@@ -256,7 +251,6 @@ class TestPdfHelper:
         finally:
             Path(pdf_path).unlink(missing_ok=True)
 
-
     @patch("ebook_mcp.tools.pdf_helper.fitz.open")
     def test_extract_page_text_page_not_found(self, mock_fitz_open):
         """Test extract_page_text with page not found"""
@@ -274,7 +268,6 @@ class TestPdfHelper:
                 extract_page_text(pdf_path, 999)
         finally:
             Path(pdf_path).unlink(missing_ok=True)
-
 
     @patch("ebook_mcp.tools.pdf_helper.fitz.open")
     def test_extract_page_markdown_success(self, mock_fitz_open):
@@ -312,7 +305,6 @@ class TestPdfHelper:
         finally:
             Path(pdf_path).unlink(missing_ok=True)
 
-
     @patch("ebook_mcp.tools.pdf_helper.fitz.open")
     def test_extract_page_markdown_with_formatting(self, mock_fitz_open):
         """Test extract_page_markdown with formatting"""
@@ -346,7 +338,6 @@ class TestPdfHelper:
             assert "Normal text" in result
         finally:
             Path(pdf_path).unlink(missing_ok=True)
-
 
     @patch("ebook_mcp.tools.pdf_helper.fitz.open")
     def test_extract_chapter_by_title_success(self, mock_fitz_open):
@@ -382,7 +373,6 @@ class TestPdfHelper:
         finally:
             Path(pdf_path).unlink(missing_ok=True)
 
-
     @patch("ebook_mcp.tools.pdf_helper.fitz.open")
     def test_extract_chapter_by_title_chapter_not_found(self, mock_fitz_open):
         """Test extract_chapter_by_title with chapter not found"""
@@ -400,7 +390,6 @@ class TestPdfHelper:
                 extract_chapter_by_title(pdf_path, "Non-existent Chapter")
         finally:
             Path(pdf_path).unlink(missing_ok=True)
-
 
     @patch("ebook_mcp.tools.pdf_helper.fitz.open")
     def test_extract_chapter_by_title_single_page(self, mock_fitz_open):
@@ -427,4 +416,3 @@ class TestPdfHelper:
             assert pages == [1]
         finally:
             Path(pdf_path).unlink(missing_ok=True)
-

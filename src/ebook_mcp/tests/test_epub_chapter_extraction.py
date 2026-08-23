@@ -241,9 +241,7 @@ class TestExtractChapterHtml:
         mock_book.toc = [mock_chapter1]
 
         mock_item = Mock()
-        mock_item.get_content.return_value = "<html><body><h1>Test</h1></body></html>".encode(
-            "utf-8"
-        )
+        mock_item.get_content.return_value = b"<html><body><h1>Test</h1></body></html>"
         mock_book.get_item_with_href.return_value = mock_item
 
         with pytest.raises(EpubProcessingError, match="not found in"):

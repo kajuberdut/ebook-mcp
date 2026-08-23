@@ -69,8 +69,6 @@ def sample_pdf_files():
     return ["document1.pdf", "document2.pdf", "text.txt"]
 
 
-
-
 @pytest.fixture
 def temp_epub_file():
     """Create a temporary EPUB file for testing"""

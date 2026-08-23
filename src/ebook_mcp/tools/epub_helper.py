@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any
 
 from .logger_config import get_logger, log_operation
 
@@ -61,7 +61,7 @@ except ImportError:
 logger = get_logger(__name__)
 
 
-def get_all_epub_files(path: str) -> List[str]:
+def get_all_epub_files(path: str) -> list[str]:
     """
     Get all EPUB files in the specified path
     """
@@ -72,7 +72,7 @@ def get_all_epub_files(path: str) -> List[str]:
 
 
 @log_operation("epub_toc_extraction")
-def get_toc(epub_path: str) -> List[Tuple[str, str]]:
+def get_toc(epub_path: str) -> list[tuple[str, str]]:
     """
     Get the Table of Contents (TOC) from an EPUB file
 
@@ -136,7 +136,7 @@ def get_toc(epub_path: str) -> List[Tuple[str, str]]:
 
 
 @log_operation("epub_metadata_extraction")
-def get_meta(epub_path: str) -> Dict[str, Union[str, List[str]]]:
+def get_meta(epub_path: str) -> dict[str, str | list[str]]:
     """
     Get metadata from an EPUB file
 
@@ -273,7 +273,7 @@ def read_epub(epub_path: str) -> Any:
     return epub.read_epub(epub_path)
 
 
-def flatten_toc(book: Any) -> List[str]:
+def flatten_toc(book: Any) -> list[str]:
     toc_list = []
 
     def _flatten(toc: Any) -> None:
@@ -438,8 +438,8 @@ def extract_chapter_markdown(book: Any, anchor_href: str) -> str:
 
 
 def extract_multiple_chapters(
-    book: Any, anchor_list: List[str], output: str = "html"
-) -> List[Tuple[str, str]]:
+    book: Any, anchor_list: list[str], output: str = "html"
+) -> list[tuple[str, str]]:
     """Extract multiple chapters using improved extract_chapter_html logic"""
     results = []
     for href in anchor_list:

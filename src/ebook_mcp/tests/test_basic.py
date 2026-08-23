@@ -38,7 +38,7 @@ def test_get_all_pdf_files_basic():
 def test_file_not_found_error():
     """Test file not found error handling"""
     with pytest.raises(FileNotFoundError):
-        open("/nonexistent/file.txt", "r")
+        open("/nonexistent/file.txt")
 
 
 def test_temp_file_operations():

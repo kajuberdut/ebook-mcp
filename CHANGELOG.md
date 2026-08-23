@@ -16,7 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Task Automation**: Configured `poe` tasks for `lint`, `lint-fix`, `format`, `format-check`, `check`, and `test`
 
 ### 🔧 Refactored
+- **Python 3.12 Target Upgrade**: Upgraded `requires-python = ">=3.12"` and Ruff target version `py312` in `pyproject.toml`
+- **Modern Python 3.12 Type Hints (PEP 585 / 604 / 695)**: Upgraded legacy `typing` annotations (`List`, `Tuple`, `Dict`, `Union`, `Optional`) to native built-ins (`list`, `tuple`, `dict`, `A | B`, `A | None`), and adopted PEP 695 generic function syntax (`def func[T](...)`)
+- **Exception Handling Safety**: Modernized bare `except:` blocks in `pdf_helper.py` to explicit `except Exception:` catches
 - **Cross-Platform Directory Resolution**: Integrated `platformdirs>=4.11.3` for standard Linux XDG state directory path resolution (`platformdirs.user_state_dir("ebook-mcp")`)
+
 - **Complete Repository Pathlib Adoption**: Refactored 100% of file system operations, path manipulation, and test suites across the repository to use `pathlib.Path` instead of legacy `os.path`, `os.listdir`, and `os.unlink`
 
 - **Opinionated Linux Logging**: Implemented XDG state directory specification (`$XDG_STATE_HOME/ebook-mcp/logs` / `~/.local/state/ebook-mcp/logs`) with `EBOOK_MCP_LOG_DIR` environment variable support
