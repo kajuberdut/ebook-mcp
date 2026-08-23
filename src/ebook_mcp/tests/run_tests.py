@@ -4,21 +4,20 @@ Test runner script for ebook-mcp project.
 This script runs all unit tests for the server components.
 """
 
-import os
 import sys
+from pathlib import Path
 
 import pytest
+
+THIS_DIR = Path(__file__).resolve().parent
+SRC_DIR = THIS_DIR.parent.parent
 
 
 def run_tests():
     """Run all tests for the ebook-mcp project"""
 
     # Add the src directory to Python path
-    src_path = os.path.join(os.path.dirname(__file__), "..", "..")
-    sys.path.insert(0, src_path)
-
-    # Get the tests directory
-    tests_dir = os.path.dirname(__file__)
+    sys.path.insert(0, str(SRC_DIR))
 
     print("Running ebook-mcp unit tests...")
     print("=" * 50)
@@ -27,7 +26,7 @@ def run_tests():
     try:
         # Run tests with verbose output and coverage
         result = pytest.main(
-            [tests_dir, "-v", "--tb=short", "--strict-markers", "--disable-warnings"]
+            [str(THIS_DIR), "-v", "--tb=short", "--strict-markers", "--disable-warnings"]
         )
 
         if result == 0:
@@ -46,16 +45,15 @@ def run_tests():
 
 def run_specific_test(test_file):
     """Run a specific test file"""
-    src_path = os.path.join(os.path.dirname(__file__), "..", "..")
-    sys.path.insert(0, src_path)
+    sys.path.insert(0, str(SRC_DIR))
 
-    test_path = os.path.join(os.path.dirname(__file__), test_file)
+    test_path = THIS_DIR / test_file
 
     print(f"Running specific test: {test_file}")
     print("=" * 50)
 
     try:
-        result = pytest.main([test_path, "-v", "--tb=short"])
+        result = pytest.main([str(test_path), "-v", "--tb=short"])
 
         if result == 0:
             print("\n" + "=" * 50)
@@ -73,12 +71,7 @@ def run_specific_test(test_file):
 
 def list_tests():
     """List all available test files"""
-    tests_dir = os.path.dirname(__file__)
-    test_files = []
-
-    for file in os.listdir(tests_dir):
-        if file.startswith("test_") and file.endswith(".py"):
-            test_files.append(file)
+    test_files = [f.name for f in THIS_DIR.glob("test_*.py") if f.is_file()]
 
     print("Available test files:")
     print("=" * 30)

@@ -1,12 +1,11 @@
-import os
-
-# Add project root to path
 import sys
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 
 # Skip tests if dependencies are not available
 try:

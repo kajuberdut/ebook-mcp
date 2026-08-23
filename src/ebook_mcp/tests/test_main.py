@@ -1,13 +1,12 @@
-import os
-
-# Mock external dependencies before importing main
 import sys
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 
 # Mock mcp.server.fastmcp
 try:
@@ -46,7 +45,7 @@ class TestEpubFunctions:
             # Create mock EPUB files
             epub_files = ["book1.epub", "book2.epub", "document.txt"]
             for file in epub_files:
-                with open(os.path.join(temp_dir, file), "w") as f:
+                with open(Path(temp_dir) / file, "w") as f:
                     f.write("mock content")
 
             result = get_all_epub_files(temp_dir)
@@ -112,7 +111,7 @@ class TestPdfFunctions:
             # Create mock PDF files
             pdf_files = ["document1.pdf", "document2.pdf", "text.txt"]
             for file in pdf_files:
-                with open(os.path.join(temp_dir, file), "w") as f:
+                with open(Path(temp_dir) / file, "w") as f:
                     f.write("mock content")
 
             result = get_all_pdf_files(temp_dir)

@@ -1,13 +1,12 @@
-import os
-
-# Mock external dependencies
 import sys
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 
 # Mock ebooklib
 try:
@@ -48,7 +47,7 @@ class TestEpubHelper:
             # Create mock EPUB files
             epub_files = ["book1.epub", "book2.epub", "document.txt"]
             for file in epub_files:
-                with open(os.path.join(temp_dir, file), "w") as f:
+                with open(Path(temp_dir) / file, "w") as f:
                     f.write("mock content")
 
             result = get_all_epub_files(temp_dir)
@@ -78,7 +77,8 @@ class TestEpubHelper:
             expected = [("Chapter 1", "chapter1.xhtml"), ("Chapter 2", "chapter2.xhtml")]
             assert result == expected
         finally:
-            os.unlink(epub_path)
+            Path(epub_path).unlink(missing_ok=True)
+
 
     @patch("ebook_mcp.tools.epub_helper.epub.read_epub")
     def test_get_toc_nested_structure(self, mock_read_epub):
@@ -104,7 +104,8 @@ class TestEpubHelper:
             expected = [("Chapter 1", "chapter1.xhtml"), ("Subchapter 1.1", "subchapter1.1.xhtml")]
             assert result == expected
         finally:
-            os.unlink(epub_path)
+            Path(epub_path).unlink(missing_ok=True)
+
 
     def test_get_toc_file_not_found(self):
         """Test get_toc with non-existent file"""
@@ -124,7 +125,8 @@ class TestEpubHelper:
             with pytest.raises(Exception):
                 get_toc(epub_path)
         finally:
-            os.unlink(epub_path)
+            Path(epub_path).unlink(missing_ok=True)
+
 
     @patch("ebook_mcp.tools.epub_helper.epub.read_epub")
     def test_get_meta_success(self, mock_read_epub):
@@ -165,7 +167,8 @@ class TestEpubHelper:
             }
             assert result == expected
         finally:
-            os.unlink(epub_path)
+            Path(epub_path).unlink(missing_ok=True)
+
 
     def test_get_meta_file_not_found(self):
         """Test get_meta with non-existent file"""
@@ -185,7 +188,8 @@ class TestEpubHelper:
             with pytest.raises(Exception):
                 get_meta(epub_path)
         finally:
-            os.unlink(epub_path)
+            Path(epub_path).unlink(missing_ok=True)
+
 
     @patch("ebook_mcp.tools.epub_helper.epub.read_epub")
     def test_read_epub_success(self, mock_read_epub):
@@ -202,7 +206,8 @@ class TestEpubHelper:
             assert result == mock_book
             mock_read_epub.assert_called_once_with(epub_path)
         finally:
-            os.unlink(epub_path)
+            Path(epub_path).unlink(missing_ok=True)
+
 
     def test_flatten_toc_simple(self):
         """Test flatten_toc with simple TOC structure"""
