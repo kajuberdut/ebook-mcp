@@ -17,10 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🔧 Refactored
 - **Modernized PyMuPDF Import**: Switched `import fitz` to `import pymupdf as fitz` to eliminate deprecation warnings
-- **Dependency Upgrades**: Updated dependency versions in `pyproject.toml` (`fastmcp>=3.4.7`, `PyMuPDF>=1.28.2`, `pydantic>=2.13.4`, `typer>=0.27.1`, etc.)
+### 🗑️ Removed
+- **Leftover Backup File**: Removed leftover source backup file `src/ebook_mcp/tools/pdf_helper.py.backup`
+- **Orphaned Test**: Removed non-existent module test `src/ebook_mcp/tests/test_azw.py`
 
-
-## [0.1.7] - 2025-08-06
 
 
 
