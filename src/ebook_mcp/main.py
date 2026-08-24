@@ -8,6 +8,7 @@ from functools import wraps
 warnings.filterwarnings("ignore", message=".*Field 'lifespan' has an incomplete definition.*")
 
 from mcp.server.fastmcp import FastMCP  # noqa: E402
+from mcp.server.transport_security import TransportSecuritySettings  # noqa: E402
 
 from ebook_mcp.tools import epub_helper, pdf_helper, security  # noqa: E402
 from ebook_mcp.tools.logger_config import setup_logger  # noqa: E402
@@ -208,19 +209,41 @@ def cli_entry():
     # Configure DNS rebinding / host header security validation rules for network transport
     raw_hosts = os.getenv("EBOOK_MCP_ALLOWED_HOSTS", "*")
     raw_origins = os.getenv("EBOOK_MCP_ALLOWED_ORIGINS", "*")
-    allowed_hosts = [h.strip() for h in raw_hosts.split(",")]
-    allowed_origins = [o.strip() for o in raw_origins.split(",")]
 
-    if "*" in allowed_hosts or "*" in allowed_origins:
+    if raw_hosts == "*" or raw_origins == "*":
         logger.warning(
             "UNSAFE DEFAULTS WARNING: FastMCP is using wildcard allowed hosts/origins ('*'). "
             "DNS rebinding protection is disabled. Suitable for dev/testing, NOT production."
         )
-        mcp.settings.transport_security.enable_dns_rebinding_protection = False
+        mcp.settings.transport_security = TransportSecuritySettings(
+            enable_dns_rebinding_protection=False,
+            allowed_hosts=[
+                "localhost:*",
+                "127.0.0.1:*",
+                "[::1]:*",
+                "ebook-mcp-server:*",
+                "0.0.0.0:*",
+                "*",
+                "*:*",
+            ],
+            allowed_origins=[
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                "http://[::1]:*",
+                "http://ebook-mcp-server:*",
+                "http://0.0.0.0:*",
+                "*",
+                "*:*",
+            ],
+        )
     else:
-        mcp.settings.transport_security.enable_dns_rebinding_protection = True
-        mcp.settings.transport_security.allowed_hosts = allowed_hosts
-        mcp.settings.transport_security.allowed_origins = allowed_origins
+        allowed_hosts = [h.strip() for h in raw_hosts.split(",")]
+        allowed_origins = [o.strip() for o in raw_origins.split(",")]
+        mcp.settings.transport_security = TransportSecuritySettings(
+            enable_dns_rebinding_protection=True,
+            allowed_hosts=allowed_hosts,
+            allowed_origins=allowed_origins,
+        )
 
     allowed_dir_env = os.getenv("EBOOK_MCP_ALLOWED_DIR")
     if not allowed_dir_env:
