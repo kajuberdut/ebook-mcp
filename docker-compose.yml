@@ -17,9 +17,10 @@ services:
       - EBOOK_MCP_LOG_LEVEL=INFO
       - EBOOK_MCP_LOG_DIR=/home/ebookmcp/.local/state/ebook-mcp/logs
     volumes:
-      # Mount your host e-book directory to /library inside the container (read-only for security)
-      - ./library:/library:ro
+      # Mount sample e-books (or your custom library directory) to /library inside the container
+      - ./sample_books:/library:ro
       # Persist application logs
+
       - ebook-mcp-logs:/home/ebookmcp/.local/state/ebook-mcp/logs
     security_opt:
       - no-new-privileges:true
