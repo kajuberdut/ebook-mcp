@@ -198,10 +198,14 @@ def cli_entry():
     port = int(os.getenv("EBOOK_MCP_PORT", "8000"))
 
     logger.info(f"Starting ebook-mcp server (transport={transport})")
+    mcp.settings.host = host
+    mcp.settings.port = port
+
     if transport == "sse":
-        mcp.run(transport="sse", host=host, port=port)
+        mcp.run(transport="sse")
     else:
         mcp.run(transport="stdio")
+
 
 
 if __name__ == "__main__":

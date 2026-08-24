@@ -5,8 +5,11 @@ services:
     command: npx -y @modelcontextprotocol/inspector
     ports:
       - "${MCP_INSPECTOR_PORT:-5173}:5173"
+      - "${MCP_INSPECTOR_PORT_V2:-6274}:6274"
       - "${MCP_INSPECTOR_PROXY_PORT:-5174}:3000"
+      - "${MCP_INSPECTOR_PROXY_PORT_V2:-6277}:6277"
     environment:
       - HOST=0.0.0.0
+      - DANGEROUSLY_OMIT_AUTH=true
     depends_on:
       - ebook-mcp
