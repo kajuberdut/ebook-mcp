@@ -206,8 +206,25 @@ def cli_entry():
     mcp.settings.port = port
 
     # Configure DNS rebinding / host header security validation rules for network transport
-    allowed_hosts = [h.strip() for h in os.getenv("EBOOK_MCP_ALLOWED_HOSTS", "*").split(",")]
-    allowed_origins = [o.strip() for o in os.getenv("EBOOK_MCP_ALLOWED_ORIGINS", "*").split(",")]
+    raw_hosts = os.getenv("EBOOK_MCP_ALLOWED_HOSTS", "*")
+    raw_origins = os.getenv("EBOOK_MCP_ALLOWED_ORIGINS", "*")
+    allowed_hosts = [h.strip() for h in raw_hosts.split(",")]
+    allowed_origins = [o.strip() for o in raw_origins.split(",")]
+
+    if "*" in allowed_hosts or "*" in allowed_origins:
+        logger.warning(
+            "UNSAFE DEFAULTS WARNING: FastMCP is using wildcard allowed hosts/origins ('*'). "
+            "DNS rebinding protection is disabled. Suitable for dev/testing, NOT production."
+        )
+
+
+    allowed_dir_env = os.getenv("EBOOK_MCP_ALLOWED_DIR")
+    if not allowed_dir_env:
+        logger.warning(
+            "UNSAFE DEFAULTS WARNING: EBOOK_MCP_ALLOWED_DIR environment variable is not set. "
+            "File path boundaries are unconstrained."
+        )
+
     mcp.settings.transport_security.allowed_hosts = allowed_hosts
     mcp.settings.transport_security.allowed_origins = allowed_origins
 
