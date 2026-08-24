@@ -133,7 +133,8 @@ class TestEpubHelper:
         mock_book = Mock()
 
         # 设置 get_metadata 方法返回正确的格式
-        def mock_get_metadata(namespace, field):
+        def mock_get_metadata(_namespace, field):
+
             metadata_map = {
                 "title": [("Test Book", {})],
                 "creator": [("Test Author", {})],
@@ -315,7 +316,8 @@ class TestEpubHelper:
         assert "Chapter Title" in html_by_index
 
     def test_extract_chapter_html_container_div(self):
-        """Test extract_chapter_html when the anchor element is a div container containing headings."""
+        """Test extract_chapter_html when anchor element is a div container."""
+
         mock_item = Mock()
         mock_item.get_content.return_value = (
             b'<html xmlns="http://www.w3.org/1999/xhtml">'

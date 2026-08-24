@@ -18,44 +18,21 @@ class EpubProcessingError(Exception):
         super().__init__(f"{message} (file: {file_path}, operation: {operation})")
 
 
-class PdfProcessingError(Exception):
-    """Custom exception for PDF processing errors with detailed context"""
-
-    def __init__(
-        self, message: str, file_path: str, operation: str, original_error: Exception = None
-    ):
-        self.message = message
-        self.file_path = file_path
-        self.operation = operation
-        self.original_error = original_error
-        super().__init__(f"{message} (file: {file_path}, operation: {operation})")
-
-
-# Try to import optional dependencies
 try:
     from ebooklib import epub
-
-    EBOOKLIB_AVAILABLE = True
 except ImportError:
     epub = None
-    EBOOKLIB_AVAILABLE = False
 
 try:
     from bs4 import BeautifulSoup, Comment
-
-    BEAUTIFULSOUP_AVAILABLE = True
 except ImportError:
     BeautifulSoup = None
     Comment = None
-    BEAUTIFULSOUP_AVAILABLE = False
 
 try:
     import html2text
-
-    HTML2TEXT_AVAILABLE = True
 except ImportError:
     html2text = None
-    HTML2TEXT_AVAILABLE = False
 
 # Initialize structured logger
 logger = get_logger(__name__)
@@ -324,14 +301,12 @@ def extract_chapter_html(book: Any, anchor_href: str) -> str:
             toc_entries.append((item.title, item.href, 1))
 
     current_idx = None
-    current_level = None
     target = anchor_href
 
     # 1. Check exact or partial match on toc_href
     for i, (title, toc_href, level) in enumerate(toc_entries):
         if toc_href == target or (target in toc_href and "#" in target):
             current_idx = i
-            current_level = level
             target = toc_href
             break
 
@@ -341,7 +316,6 @@ def extract_chapter_html(book: Any, anchor_href: str) -> str:
         for i, (title, toc_href, level) in enumerate(toc_entries):
             if title.strip().lower() == target_clean:
                 current_idx = i
-                current_level = level
                 target = toc_href
                 break
 
@@ -352,7 +326,6 @@ def extract_chapter_html(book: Any, anchor_href: str) -> str:
             title_clean = title.strip().lower()
             if target_clean in title_clean or title_clean in target_clean:
                 current_idx = i
-                current_level = level
                 target = toc_href
                 break
 
@@ -362,7 +335,6 @@ def extract_chapter_html(book: Any, anchor_href: str) -> str:
         if 0 <= idx < len(toc_entries):
             current_idx = idx
             title, toc_href, level = toc_entries[idx]
-            current_level = level
             target = toc_href
 
     if current_idx is None:
@@ -370,14 +342,8 @@ def extract_chapter_html(book: Any, anchor_href: str) -> str:
             f"Chapter '{anchor_href}' not found in TOC", "unknown", "toc_lookup"
         )
 
-    next_chapter_href = None
-    for i in range(current_idx + 1, len(toc_entries)):
-        title, toc_href, level = toc_entries[i]
-        if level <= current_level:
-            next_chapter_href = toc_href
-            break
-
     href, anchor = target.split("#") if "#" in target else (target, None)
+
     item = book.get_item_with_href(href)
     if item is None:
         raise EpubProcessingError(
@@ -460,10 +426,3 @@ def extract_multiple_chapters(
             raise ValueError("Invalid output format.")
         results.append((href, content))
     return results
-
-
-if __name__ == "__main__":
-    # Test the functionality
-    book = read_epub("/path/to/book.epub")
-    # Single chapter to Markdown
-    md = convert_html_to_markdown(extract_chapter_html(book, "xhtml/ch02.xhtml#ch02"))

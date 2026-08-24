@@ -41,8 +41,8 @@ mcp = FastMCP(
     "ebook-mcp",
     instructions=(
         "Ebook-MCP is a Model Context Protocol server for processing EPUB e-books. "
-        "It provides standardized tools to extract metadata, table of contents, and chapter content. "
-        "Always supply absolute file paths."
+        "It provides standardized tools to extract metadata, table of contents, "
+        "and chapter content. Always supply absolute file paths."
     ),
 )
 
