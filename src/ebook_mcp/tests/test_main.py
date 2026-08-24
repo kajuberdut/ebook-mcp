@@ -100,13 +100,61 @@ class TestMainModule:
         assert hasattr(ebook_mcp.main, "mcp")
         assert hasattr(ebook_mcp.main, "get_all_epub_files")
 
+    def test_prompts(self):
+        """Test summarize_chapter and generate_quiz prompt templates"""
+        from ebook_mcp.main import generate_quiz, summarize_chapter
+
+        summary_prompt = summarize_chapter("/path/to/book.epub", "Chapter 1")
+        assert "summarize the content of chapter 'Chapter 1'" in summary_prompt
+        assert "'/path/to/book.epub'" in summary_prompt
+
+        quiz_prompt = generate_quiz("/path/to/book.epub", "Chapter 1", num_questions=10)
+        assert "generate a 10-question study quiz" in quiz_prompt
+        assert "'/path/to/book.epub'" in quiz_prompt
+
+    @patch("ebook_mcp.tools.epub_helper.extract_chapter_markdown")
+    @patch("ebook_mcp.tools.epub_helper.read_epub")
+    def test_get_epub_chapter_markdown(self, mock_read_epub, mock_extract):
+        """Test get_epub_chapter_markdown tool function"""
+        from ebook_mcp.main import get_epub_chapter_markdown
+
+        mock_read_epub.return_value = Mock()
+        mock_extract.return_value = "# Chapter 1\n\nContent"
+
+        result = get_epub_chapter_markdown("/path/to/book.epub", "Chapter 1")
+        assert result == "# Chapter 1\n\nContent"
+        mock_extract.assert_called_once()
+
     @patch("ebook_mcp.main.mcp.run")
-    def test_cli_entry_function(self, mock_mcp_run):
-        """Test cli_entry function launches the registered FastMCP server"""
+    def test_cli_entry_stdio(self, mock_mcp_run):
+        """Test cli_entry function launches stdio transport"""
         from ebook_mcp.main import cli_entry
 
         cli_entry()
         mock_mcp_run.assert_called_once_with(transport="stdio")
+
+    @patch("ebook_mcp.main.mcp.run")
+    def test_cli_entry_sse_and_custom_hosts(self, mock_mcp_run):
+        """Test cli_entry with sse transport and custom allowed hosts/origins"""
+        from ebook_mcp.main import cli_entry
+
+        env_override = {
+            "EBOOK_MCP_TRANSPORT": "sse",
+            "EBOOK_MCP_ALLOWED_HOSTS": "example.com, myhost.com",
+            "EBOOK_MCP_ALLOWED_ORIGINS": "http://example.com, http://myhost.com",
+            "EBOOK_MCP_ALLOWED_DIR": "/library",
+        }
+        with patch.dict("os.environ", env_override):
+            cli_entry()
+            mock_mcp_run.assert_called_once_with(transport="sse")
+
+    @patch("ebook_mcp.main.cli_entry")
+    def test_main_module_execution(self, mock_cli_entry):
+        """Test __main__.py entrypoint invokes cli_entry"""
+        import runpy
+
+        runpy.run_module("ebook_mcp", run_name="__main__")
+        mock_cli_entry.assert_called_once()
 
 
 class TestDecorators:
