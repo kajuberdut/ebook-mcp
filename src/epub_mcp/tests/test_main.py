@@ -193,6 +193,141 @@ class TestMainModule:
         with pytest.raises(ValueError, match="page_size must be between 1 and 200000"):
             get_epub_chapter_markdown("/path/to/book.epub", "Chapter 1", page_size=300000)
 
+
+class TestEpubChapterPaginationEdgeCases:
+    """Detailed unit tests for pagination edge cases and semantic boundary controls."""
+
+    @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
+    @patch("epub_mcp.tools.epub_helper.read_epub")
+    def test_semantic_newline_boundary_slicing(self, mock_read_epub, mock_extract):
+        """Test slicing at nearest newline break when raw_end_index falls mid-paragraph"""
+        from epub_mcp.main import get_epub_chapter_markdown
+
+        mock_read_epub.return_value = Mock()
+        # Paragraph 1 is 200 'A's + '\n\n', Paragraph 2 is 200 'B's
+        paragraph_1 = ("A" * 198) + "\n\n"
+        paragraph_2 = "B" * 200
+        mock_extract.return_value = paragraph_1 + paragraph_2
+
+        # Request page_size of 250 (which falls in the middle of paragraph 2)
+        res = get_epub_chapter_markdown(
+            "/path/to/book.epub", "Chapter 1", start_index=0, page_size=250
+        )
+        # Should snap back to the end of paragraph 1 at character 200
+        assert res["end_index"] == 200
+        assert res["content"] == paragraph_1
+        assert res["has_more"] is True
+        assert res["next_start_index"] == 200
+
+    @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
+    @patch("epub_mcp.tools.epub_helper.read_epub")
+    def test_semantic_boundary_fallback_no_newline(self, mock_read_epub, mock_extract):
+        """Test strict raw_end_index fallback when no newline exists within lookback window"""
+        from epub_mcp.main import get_epub_chapter_markdown
+
+        mock_read_epub.return_value = Mock()
+        # Continuous string of 600 characters without any newlines
+        mock_extract.return_value = "X" * 600
+
+        res = get_epub_chapter_markdown(
+            "/path/to/book.epub", "Chapter 1", start_index=0, page_size=400
+        )
+        assert res["end_index"] == 400
+        assert res["content"] == "X" * 400
+        assert res["has_more"] is True
+        assert res["next_start_index"] == 400
+
+    @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
+    @patch("epub_mcp.tools.epub_helper.read_epub")
+    def test_empty_chapter_content(self, mock_read_epub, mock_extract):
+        """Test pagination behavior when chapter content is completely empty"""
+        from epub_mcp.main import get_epub_chapter_markdown
+
+        mock_read_epub.return_value = Mock()
+        mock_extract.return_value = ""
+
+        res = get_epub_chapter_markdown(
+            "/path/to/book.epub", "Chapter 1", start_index=0, page_size=50000
+        )
+        assert res["content"] == ""
+        assert res["start_index"] == 0
+        assert res["end_index"] == 0
+        assert res["total_length"] == 0
+        assert res["total_pages"] == 0
+        assert res["has_more"] is False
+        assert res["next_start_index"] is None
+        assert "No more content available" in res["message"]
+
+    @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
+    @patch("epub_mcp.tools.epub_helper.read_epub")
+    def test_exact_multiple_page_size_boundary(self, mock_read_epub, mock_extract):
+        """Test pagination when total_length is an exact multiple of page_size"""
+        from epub_mcp.main import get_epub_chapter_markdown
+
+        mock_read_epub.return_value = Mock()
+        # 100 characters, no newlines
+        mock_extract.return_value = "Z" * 100
+
+        # Page 1 (0 to 50)
+        res1 = get_epub_chapter_markdown(
+            "/path/to/book.epub", "Chapter 1", start_index=0, page_size=50
+        )
+        assert res1["end_index"] == 50
+        assert res1["has_more"] is True
+        assert res1["next_start_index"] == 50
+        assert res1["total_pages"] == 2
+
+        # Page 2 (50 to 100)
+        res2 = get_epub_chapter_markdown(
+            "/path/to/book.epub", "Chapter 1", start_index=50, page_size=50
+        )
+        assert res2["end_index"] == 100
+        assert res2["has_more"] is False
+        assert res2["next_start_index"] is None
+        assert res2["total_pages"] == 2
+
+    @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
+    @patch("epub_mcp.tools.epub_helper.read_epub")
+    def test_start_index_at_exact_total_length(self, mock_read_epub, mock_extract):
+        """Test behavior when start_index equals total_length"""
+        from epub_mcp.main import get_epub_chapter_markdown
+
+        mock_read_epub.return_value = Mock()
+        mock_extract.return_value = "Hello"
+
+        res = get_epub_chapter_markdown(
+            "/path/to/book.epub", "Chapter 1", start_index=5, page_size=50000
+        )
+        assert res["content"] == ""
+        assert res["start_index"] == 5
+        assert res["end_index"] == 5
+        assert res["total_length"] == 5
+        assert res["has_more"] is False
+        assert res["next_start_index"] is None
+        assert res["total_pages"] == 1
+        assert "No more content available. Total length: 5 characters." in res["message"]
+
+    @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
+    @patch("epub_mcp.tools.epub_helper.read_epub")
+    def test_exact_max_page_size_boundary(self, mock_read_epub, mock_extract):
+        """Test exact maximum allowed page_size boundary of 200,000"""
+        from epub_mcp.main import MAX_PAGE_SIZE, get_epub_chapter_markdown
+
+        mock_read_epub.return_value = Mock()
+        mock_extract.return_value = "Content"
+
+        # MAX_PAGE_SIZE (200,000) is allowed
+        res = get_epub_chapter_markdown(
+            "/path/to/book.epub", "Chapter 1", start_index=0, page_size=MAX_PAGE_SIZE
+        )
+        assert res["content"] == "Content"
+
+        # MAX_PAGE_SIZE + 1 (200,001) raises ValueError
+        with pytest.raises(ValueError, match="page_size must be between 1 and 200000"):
+            get_epub_chapter_markdown(
+                "/path/to/book.epub", "Chapter 1", start_index=0, page_size=MAX_PAGE_SIZE + 1
+            )
+
     @patch("epub_mcp.main.mcp.run")
     def test_cli_entry_stdio(self, mock_mcp_run):
         """Test cli_entry function launches stdio transport"""
