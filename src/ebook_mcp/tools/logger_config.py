@@ -129,6 +129,10 @@ def setup_logger(level: str = None, log_file: str = None):
     - File logs output JSON-structured entries to XDG log dir or EBOOK_MCP_LOG_DIR
     """
     import sys
+    import warnings
+
+    # Suppress upstream pydantic_settings forward reference warnings
+    warnings.filterwarnings("ignore", message=".*Field 'lifespan' has an incomplete definition.*")
 
     if level is None:
         level = os.getenv("EBOOK_MCP_LOG_LEVEL", "INFO")
