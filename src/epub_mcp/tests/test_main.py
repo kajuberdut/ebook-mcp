@@ -116,7 +116,7 @@ class TestMainModule:
     @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
     @patch("epub_mcp.tools.epub_helper.read_epub")
     def test_get_epub_chapter_markdown(self, mock_read_epub, mock_extract):
-        """Test get_epub_chapter_markdown tool function"""
+        """Test get_epub_chapter_markdown tool function with default parameters"""
         from epub_mcp.main import get_epub_chapter_markdown
 
         mock_read_epub.return_value = Mock()
@@ -125,6 +125,33 @@ class TestMainModule:
         result = get_epub_chapter_markdown("/path/to/book.epub", "Chapter 1")
         assert result == "# Chapter 1\n\nContent"
         mock_extract.assert_called_once()
+
+    @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
+    @patch("epub_mcp.tools.epub_helper.read_epub")
+    def test_get_epub_chapter_markdown_pagination(self, mock_read_epub, mock_extract):
+        """Test get_epub_chapter_markdown pagination for large chapter content"""
+        from epub_mcp.main import get_epub_chapter_markdown
+
+        mock_read_epub.return_value = Mock()
+        # 100 character content
+        mock_extract.return_value = "A" * 100
+
+        # Request first page of 30 characters
+        res1 = get_epub_chapter_markdown(
+            "/path/to/book.epub", "Chapter 1", start_index=0, page_size=30
+        )
+        assert res1.startswith("A" * 30)
+        assert (
+            "[Content truncated. Total length: 100 characters. Use start_index=30 to continue.]"
+            in res1
+        )
+
+        # Request next page from index 30 with size 80 (covers remaining 70 chars)
+        res2 = get_epub_chapter_markdown(
+            "/path/to/book.epub", "Chapter 1", start_index=30, page_size=80
+        )
+        assert res2 == "A" * 70
+        assert "truncated" not in res2
 
     @patch("epub_mcp.main.mcp.run")
     def test_cli_entry_stdio(self, mock_mcp_run):

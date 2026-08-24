@@ -105,21 +105,41 @@ def get_epub_toc(epub_path: str) -> list[tuple[str, str]]:
 
 @mcp.tool()
 @handle_mcp_errors
-def get_epub_chapter_markdown(epub_path: str, chapter_id: str) -> str:
-    """Get content of an EPUB chapter in markdown format.
+def get_epub_chapter_markdown(
+    epub_path: str, chapter_id: str, start_index: int = 0, page_size: int = 50000
+) -> str:
+    """Get content of an EPUB chapter in markdown format with optional pagination.
 
     Args:
         epub_path: Path to the EPUB file.
         chapter_id: Chapter identifier. Accepts chapter title (e.g. 'CHAPTER II'),
             href link from get_epub_toc, or 1-based chapter index (e.g. '5').
+        start_index: Starting character index for pagination (default: 0).
+        page_size: Maximum number of characters to return (default: 50000).
 
+    Returns:
+        str: Chapter content in markdown format (paginated if truncated).
     """
     clean_path = str(
         security.validate_file_path(epub_path, allowed_extensions={".epub"}, must_exist=False)
     )
-    logger.debug(f"calling get_epub_chapter_markdown: {clean_path}, chapter ID: {chapter_id}")
+    logger.debug(
+        f"calling get_epub_chapter_markdown: {clean_path}, chapter ID: {chapter_id}, "
+        f"start: {start_index}, size: {page_size}"
+    )
     book = epub_helper.read_epub(clean_path)
-    return epub_helper.extract_chapter_markdown(book, chapter_id)
+    full_content = epub_helper.extract_chapter_markdown(book, chapter_id)
+
+    end_index = start_index + page_size
+    paginated_content = full_content[start_index:end_index]
+
+    if end_index < len(full_content):
+        paginated_content += (
+            f"\n\n[Content truncated. Total length: {len(full_content)} characters. "
+            f"Use start_index={end_index} to continue.]"
+        )
+
+    return paginated_content
 
 
 # Entry point for the package CLI (epub-mcp)

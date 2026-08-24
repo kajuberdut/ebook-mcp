@@ -253,8 +253,9 @@ Get metadata (title, author, publisher, language, identifier) from an EPUB file.
 #### `get_epub_toc(epub_path: str) -> List[Tuple[str, str]]`
 Get table of contents from an EPUB file as a list of `(title, href)` entries.
 
-#### `get_epub_chapter_markdown(epub_path: str, chapter_id: str) -> str`
-Get chapter content in Markdown format. Accepts chapter title (e.g. `'CHAPTER II. The Pool of Tears'`), case-insensitive substring (e.g. `'Pool of Tears'`), 1-based index (e.g. `'5'`), or raw internal href anchor link.
+#### `get_epub_chapter_markdown(epub_path: str, chapter_id: str, start_index: int = 0, page_size: int = 50000) -> str`
+Get chapter content in Markdown format with optional pagination for large chapters. Accepts chapter title (e.g. `'CHAPTER II. The Pool of Tears'`), case-insensitive substring (e.g. `'Pool of Tears'`), 1-based index (e.g. `'5'`), or raw internal href anchor link. If content exceeds `page_size`, a truncation notice is included with instructions for retrieving the next chunk using `start_index`.
+
 
 ## Dependencies
 
