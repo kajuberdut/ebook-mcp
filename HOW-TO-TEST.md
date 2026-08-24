@@ -38,15 +38,19 @@ src/ebook_mcp/tests/
 ### Method 1: Using Poe Task Runner (Recommended)
 
 ```bash
-# Run test suite
+# Run all unit tests with terminal missing coverage report
 uv run poe test
 
-# Run code check & format verification (ruff)
+# Run tests and generate HTML coverage report (in htmlcov/ directory)
+uv run poe coverage
+
+# Run code check & format verification (ruff + vulture)
 uv run poe check
 
 # Run code linting (ruff)
 uv run poe lint
 ```
+
 
 ### Method 2: Using pytest directly
 

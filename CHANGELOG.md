@@ -25,7 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Path Traversal Protection & Security Validation**: Added `src/ebook_mcp/tools/security.py` module to resolve paths safely, enforce extension whitelists (`.epub`, `.pdf`), validate parameter bounds (`page_number >= 1`), and enforce optional directory scoping via `EBOOK_MCP_ALLOWED_DIR`.
 
 ### 🌟 Added
+- **Pytest Coverage Reporting**: Integrated `pytest-cov` into `dev` dependencies, configured `--cov=ebook_mcp --cov-report=term-missing` in `pytest.ini` and `pyproject.toml`, achieving **83% overall test coverage** (96% security, 86% main, 84% epub_helper, 100% docker_cli), and added `poe coverage` task for HTML report generation.
 - **Vulture Dead Code Checking**: Integrated `vulture` dead-code analyzer into `dev` dependencies, created `.vulture_whitelist.py` for FastMCP framework entrypoints, and configured `poe vulture` task in `pyproject.toml`.
+
 - **MCP Inspector Tutorial**: Added [`docs/tutorials/using_mcp_inspector.md`](docs/tutorials/using_mcp_inspector.md) covering high-level MCP concepts, running `uv run poe compose-inspector`, navigating the Tools tab, and executing the 3-step e-book discovery walkthrough with 4-tier flexible chapter matching.
 
 - **MCP Config Directory & Auto-Injection**: Moved client config preset to `.mcp/mcp.json` and mounted `./.mcp/mcp.json:/app/mcp.json:ro` into the Inspector container (`--config /app/mcp.json`) for seamless zero-manual-setup debugging.

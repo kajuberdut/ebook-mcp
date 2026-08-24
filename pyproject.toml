@@ -22,6 +22,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=9.1.1",
+    "pytest-cov>=6.0.0",
     "uvicorn>=0.52.4",
     "poethepoet>=0.48.0",
     "ruff>=0.16.4",
@@ -53,7 +54,9 @@ lint-fix = "ruff check --fix ."
 format = "ruff format ."
 format-check = "ruff format --check ."
 vulture = "vulture src .vulture_whitelist.py"
-test = "pytest"
+test = "pytest --cov=ebook_mcp --cov-report=term-missing"
+coverage = "pytest --cov=ebook_mcp --cov-report=term-missing --cov-report=html"
+
 check = ["format-check", "lint", "vulture"]
 compose-up = "docker compose up -d --build"
 compose-inspector = "docker compose -f docker-compose.yml -f docker-compose.inspector.yml up --build"
