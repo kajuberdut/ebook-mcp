@@ -5,6 +5,7 @@ from functools import wraps
 
 from mcp.server.fastmcp import FastMCP
 
+
 from ebook_mcp.tools import epub_helper, pdf_helper, security
 from ebook_mcp.tools.logger_config import setup_logger
 
@@ -205,7 +206,6 @@ def cli_entry():
         mcp.run(transport="sse")
     else:
         mcp.run(transport="stdio")
-
 
 
 if __name__ == "__main__":
