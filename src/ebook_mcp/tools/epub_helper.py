@@ -215,14 +215,14 @@ def get_meta(epub_path: str) -> dict[str, str | list[str]]:
 @log_operation("epub_chapter_extraction")
 def extract_chapter_from_epub(epub_path: str, anchor_href: str) -> str:
     """
-    Extract complete HTML content of a chapter starting from the specified anchor point until the next TOC entry.
+    Extract complete HTML content of a chapter starting from specified chapter identifier.
 
     Args:
         epub_path: Complete path to the EPUB file
-        anchor_href: Chapter location information like 'xhtml/ch01.xhtml#ch01'
+        anchor_href: Chapter location, title, or index (e.g. 'CHAPTER II', 'ch01.xhtml', or '5')
 
     Returns:
-        HTML string (complete chapter content starting from the anchor point)
+        HTML string of chapter content
     """
     logger.debug(
         "Starting EPUB chapter extraction",
@@ -230,43 +230,8 @@ def extract_chapter_from_epub(epub_path: str, anchor_href: str) -> str:
         anchor_href=anchor_href,
         operation="chapter_extraction",
     )
-    # Read EPUB file
     book = epub.read_epub(epub_path)
-    # Parse input href and anchor id
-    if "#" in anchor_href:
-        href, anchor_id = anchor_href.split("#")
-    else:
-        href, anchor_id = anchor_href, None
-
-    if anchor_id:
-        logger.debug("Processing anchor", anchor_id=anchor_id, operation="chapter_extraction")
-
-    # Get current chapter XHTML content
-    item = book.get_item_with_href(href)
-    if item is None:
-        raise EpubProcessingError(
-            f"Chapter file not found: {href}", epub_path, "chapter_extraction"
-        )
-
-    soup = BeautifulSoup(item.get_content().decode("utf-8"), "html.parser")
-
-    # If no anchor, return entire page
-    if not anchor_id:
-        return str(soup)
-
-    # Find anchor starting position
-    anchor_elem = soup.find(id=anchor_id)
-    if not anchor_elem:
-        raise EpubProcessingError(
-            f"Anchor #{anchor_id} not found in file {href}", epub_path, "anchor_extraction"
-        )
-
-    # Extract all content after this anchor (including itself)
-    extracted = [str(anchor_elem)]
-    for elem in anchor_elem.find_all_next():
-        extracted.append(str(elem))
-
-    return "\n".join(extracted)
+    return extract_chapter_html(book, anchor_href)
 
 
 def read_epub(epub_path: str) -> Any:
@@ -335,16 +300,16 @@ def clean_html(html_str: str) -> str:
 def extract_chapter_html(book: Any, anchor_href: str) -> str:
     """
     Extract chapter HTML content with improved logic to handle subchapters correctly.
-    This function fixes the issue where subchapters in the TOC cause premature truncation
-    of chapter content by properly understanding the chapter hierarchy.
+    Supports looking up chapters by href link, chapter title, or 1-based index.
+
     Args:
         book: EPUB book object
-        anchor_href: Chapter location information like 'chapter1.xhtml#section1_3'
+        anchor_href: Chapter identifier (href link, chapter title, or index)
+
     Returns:
         HTML string (complete chapter content with proper boundaries)
     """
-    logger.debug(f"Extracting chapter with improved logic: {anchor_href}")
-    href, anchor = anchor_href.split("#") if "#" in anchor_href else (anchor_href, None)
+    logger.debug(f"Extracting chapter with flexible matching: {anchor_href}")
     toc_entries = []
     for item in book.toc:
         if isinstance(item, tuple):
@@ -357,28 +322,68 @@ def extract_chapter_html(book: Any, anchor_href: str) -> str:
                     toc_entries.append((sub_item.title, sub_item.href, 2))
         else:
             toc_entries.append((item.title, item.href, 1))
+
     current_idx = None
     current_level = None
+    target = anchor_href
+
+    # 1. Check exact or partial match on toc_href
     for i, (title, toc_href, level) in enumerate(toc_entries):
-        if toc_href == anchor_href or (anchor_href in toc_href and "#" in anchor_href):
+        if toc_href == target or (target in toc_href and "#" in target):
             current_idx = i
             current_level = level
+            target = toc_href
             break
+
+    # 2. Check exact or case-insensitive match on title
+    if current_idx is None:
+        target_clean = target.strip().lower()
+        for i, (title, toc_href, level) in enumerate(toc_entries):
+            if title.strip().lower() == target_clean:
+                current_idx = i
+                current_level = level
+                target = toc_href
+                break
+
+    # 3. Check partial / substring match on title
+    if current_idx is None:
+        target_clean = target.strip().lower()
+        for i, (title, toc_href, level) in enumerate(toc_entries):
+            title_clean = title.strip().lower()
+            if target_clean in title_clean or title_clean in target_clean:
+                current_idx = i
+                current_level = level
+                target = toc_href
+                break
+
+    # 4. Check 1-based numeric index
+    if current_idx is None and target.isdigit():
+        idx = int(target) - 1
+        if 0 <= idx < len(toc_entries):
+            current_idx = idx
+            title, toc_href, level = toc_entries[idx]
+            current_level = level
+            target = toc_href
+
     if current_idx is None:
         raise EpubProcessingError(
-            f"Chapter {anchor_href} not found in TOC", "unknown", "toc_lookup"
+            f"Chapter '{anchor_href}' not found in TOC", "unknown", "toc_lookup"
         )
+
     next_chapter_href = None
     for i in range(current_idx + 1, len(toc_entries)):
         title, toc_href, level = toc_entries[i]
         if level <= current_level:
             next_chapter_href = toc_href
             break
+
+    href, anchor = target.split("#") if "#" in target else (target, None)
     item = book.get_item_with_href(href)
     if item is None:
         raise EpubProcessingError(
             f"Chapter file not found: {href}", "unknown", "chapter_file_lookup"
         )
+
     soup = BeautifulSoup(item.get_content().decode("utf-8"), "html.parser")
     elems = []
 
