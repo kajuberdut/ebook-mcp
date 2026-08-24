@@ -25,6 +25,7 @@ dev = [
     "uvicorn>=0.52.4",
     "poethepoet>=0.48.0",
     "ruff>=0.16.4",
+    "vulture>=2.14",
 ]
 
 
@@ -51,8 +52,9 @@ lint = "ruff check ."
 lint-fix = "ruff check --fix ."
 format = "ruff format ."
 format-check = "ruff format --check ."
+vulture = "vulture src .vulture_whitelist.py"
 test = "pytest"
-check = ["format-check", "lint"]
+check = ["format-check", "lint", "vulture"]
 compose-up = "docker compose up -d --build"
 compose-inspector = "docker compose -f docker-compose.yml -f docker-compose.inspector.yml up --build"
 compose = "ebook_mcp.tools.docker_cli:run_compose"

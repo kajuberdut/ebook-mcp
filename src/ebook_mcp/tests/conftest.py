@@ -29,44 +29,9 @@ def mock_epub_book():
 
 
 @pytest.fixture
-def mock_pdf_reader():
-    """Create a mock PDF reader for testing"""
-    mock_reader = Mock()
-    mock_reader.metadata = {
-        "/Title": "Test PDF",
-        "/Author": "Test Author",
-        "/Subject": "Test Subject",
-        "/Creator": "Test Creator",
-        "/Producer": "Test Producer",
-        "/CreationDate": "2023-01-01",
-        "/ModDate": "2023-01-02",
-    }
-    mock_reader.pages = [Mock(), Mock(), Mock()]  # 3 pages
-    return mock_reader
-
-
-@pytest.fixture
-def mock_pdf_document():
-    """Create a mock PDF document for testing"""
-    mock_doc = Mock()
-    mock_doc.get_toc.return_value = [
-        (1, "Chapter 1", 1),
-        (1, "Chapter 2", 5),
-        (2, "Subchapter 2.1", 7),
-    ]
-    return mock_doc
-
-
-@pytest.fixture
 def sample_epub_files():
     """Create sample EPUB file names for testing"""
     return ["book1.epub", "book2.epub", "document.txt"]
-
-
-@pytest.fixture
-def sample_pdf_files():
-    """Create sample PDF file names for testing"""
-    return ["document1.pdf", "document2.pdf", "text.txt"]
 
 
 @pytest.fixture
@@ -80,16 +45,3 @@ def temp_epub_file():
 
     # Cleanup
     Path(epub_path).unlink(missing_ok=True)
-
-
-@pytest.fixture
-def temp_pdf_file():
-    """Create a temporary PDF file for testing"""
-    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
-        f.write(b"mock pdf content")
-        pdf_path = f.name
-
-    yield pdf_path
-
-    # Cleanup
-    Path(pdf_path).unlink(missing_ok=True)
