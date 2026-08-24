@@ -178,12 +178,13 @@ uv run src/ebook_mcp/main.py
 
 #### Running with Poe & Docker Compose (Recommended)
 
-1. Place your e-books (`.epub`, `.pdf`) in `./library/` (or customize the volume mount path in `docker-compose.yml`).
+1. The repository includes an out-of-the-box public domain e-book (*Alice's Adventures in Wonderland* by Lewis Carroll) inside `./sample_books/`. You can also add your own `.epub` and `.pdf` files to `./sample_books/` or customize volume mounts in `docker-compose.yml`.
 2. Launch the containerized server:
 ```bash
 uv run poe compose up
 ```
 The FastMCP server will run on `http://localhost:8000/sse`.
+
 
 #### Running with MCP Inspector UI
 
