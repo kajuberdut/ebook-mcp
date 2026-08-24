@@ -212,8 +212,10 @@ def cli_entry():
 
     if raw_hosts == "*" or raw_origins == "*":
         logger.warning(
-            "UNSAFE DEFAULTS WARNING: FastMCP is using wildcard allowed hosts/origins ('*'). "
-            "DNS rebinding protection is disabled. Suitable for dev/testing, NOT production."
+            "UNSAFE DEFAULTS WARNING: FastMCP is using wildcard allowed hosts/origins ('*') "
+            "with DNS rebinding protection disabled. Suitable for dev/testing, NOT production. "
+            "To resolve for production, set EBOOK_MCP_ALLOWED_HOSTS and EBOOK_MCP_ALLOWED_ORIGINS "
+            "to specific host lists (e.g. 'myhost.com,192.168.1.100')."
         )
         mcp.settings.transport_security = TransportSecuritySettings(
             enable_dns_rebinding_protection=False,
@@ -249,7 +251,8 @@ def cli_entry():
     if not allowed_dir_env:
         logger.warning(
             "UNSAFE DEFAULTS WARNING: EBOOK_MCP_ALLOWED_DIR environment variable is not set. "
-            "File path boundaries are unconstrained."
+            "File path boundaries are unconstrained. To resolve for production, set "
+            "EBOOK_MCP_ALLOWED_DIR to your book directory path (e.g. '/library')."
         )
 
     if transport == "sse":
