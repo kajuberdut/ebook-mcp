@@ -216,7 +216,11 @@ def cli_entry():
             "UNSAFE DEFAULTS WARNING: FastMCP is using wildcard allowed hosts/origins ('*'). "
             "DNS rebinding protection is disabled. Suitable for dev/testing, NOT production."
         )
-
+        mcp.settings.transport_security.enable_dns_rebinding_protection = False
+    else:
+        mcp.settings.transport_security.enable_dns_rebinding_protection = True
+        mcp.settings.transport_security.allowed_hosts = allowed_hosts
+        mcp.settings.transport_security.allowed_origins = allowed_origins
 
     allowed_dir_env = os.getenv("EBOOK_MCP_ALLOWED_DIR")
     if not allowed_dir_env:
@@ -224,9 +228,6 @@ def cli_entry():
             "UNSAFE DEFAULTS WARNING: EBOOK_MCP_ALLOWED_DIR environment variable is not set. "
             "File path boundaries are unconstrained."
         )
-
-    mcp.settings.transport_security.allowed_hosts = allowed_hosts
-    mcp.settings.transport_security.allowed_origins = allowed_origins
 
     if transport == "sse":
         mcp.run(transport="sse")
