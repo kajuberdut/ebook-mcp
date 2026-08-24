@@ -59,3 +59,9 @@ def test_validate_file_path_allowed_dir():
 
             with pytest.raises(SecurityValidationError, match="Access denied"):
                 validate_file_path(bad_file, allowed_extensions={".epub"})
+
+
+def test_validate_file_path_not_regular_file():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with pytest.raises(SecurityValidationError, match="Target path is not a regular file"):
+            validate_file_path(temp_dir, must_exist=True)

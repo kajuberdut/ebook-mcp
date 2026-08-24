@@ -21,10 +21,12 @@ except ImportError:
     BeautifulSoup = Mock()
 
 from ebook_mcp.tools.epub_helper import (
+    EpubProcessingError,
     clean_html,
     convert_html_to_markdown,
     extract_chapter_html,
     extract_chapter_plain_text,
+    extract_multiple_chapters,
     flatten_toc,
     get_all_epub_files,
     get_meta,
@@ -338,3 +340,115 @@ class TestEpubHelper:
         html = extract_chapter_html(mock_book, "ch01.html#pgepubid00003")
         assert "CHAPTER I. Down the Rabbit-Hole" in html
         assert "Alice was beginning to get very tired" in html
+
+    def test_epub_processing_error_attributes(self):
+        """Test EpubProcessingError attributes initialization"""
+        orig_err = ValueError("Original root cause")
+        err = EpubProcessingError(
+            "Test error message",
+            file_path="/path/to/book.epub",
+            operation="test_op",
+            original_error=orig_err,
+        )
+        assert err.message == "Test error message"
+        assert err.file_path == "/path/to/book.epub"
+        assert err.operation == "test_op"
+        assert err.original_error == orig_err
+        assert "(file: /path/to/book.epub, operation: test_op)" in str(err)
+
+    def test_extract_chapter_from_epub(self):
+        """Test extract_chapter_from_epub wrapper function"""
+        mock_ch = Mock()
+        mock_ch.title = "Chapter 1"
+        mock_ch.href = "ch01.html"
+
+        mock_item = Mock()
+        mock_item.get_content.return_value = (
+            b"<html><body><h2>Chapter 1</h2><p>Content</p></body></html>"
+        )
+
+        mock_book = Mock()
+        mock_book.toc = [mock_ch]
+        mock_book.get_item_with_href.return_value = mock_item
+
+        with patch("ebook_mcp.tools.epub_helper.epub.read_epub", return_value=mock_book):
+            from ebook_mcp.tools.epub_helper import extract_chapter_from_epub
+
+            html = extract_chapter_from_epub("/fake/book.epub", "Chapter 1")
+            assert "Chapter 1" in html
+
+    def test_extract_chapter_html_errors(self):
+        """Test extract_chapter_html error conditions"""
+        mock_ch = Mock()
+        mock_ch.title = "Chapter I"
+        mock_ch.href = "ch01.html#sec1"
+
+        mock_book = Mock()
+        mock_book.toc = [mock_ch]
+
+        # 1. Chapter not found in TOC
+        with pytest.raises(EpubProcessingError, match="not found in TOC"):
+            extract_chapter_html(mock_book, "Nonexistent Chapter")
+
+        # 2. Chapter file not found in book
+        mock_book.get_item_with_href.return_value = None
+        with pytest.raises(EpubProcessingError, match="Chapter file not found"):
+            extract_chapter_html(mock_book, "Chapter I")
+
+        # 3. Anchor not found in chapter HTML
+        mock_item = Mock()
+        mock_item.get_content.return_value = b"<html><body><p>No anchor</p></body></html>"
+        mock_book.get_item_with_href.return_value = mock_item
+        with pytest.raises(EpubProcessingError, match="Anchor sec1 not found"):
+            extract_chapter_html(mock_book, "Chapter I")
+
+    def test_extract_chapter_html_partial_title_and_body_fallback(self):
+        """Test partial title matching and body element fallback"""
+        mock_item = Mock()
+        mock_item.get_content.return_value = (
+            b"<html><body><p>Plain text content without headings</p></body></html>"
+        )
+
+        mock_ch = Mock()
+        mock_ch.title = "CHAPTER II. The Pool of Tears"
+        mock_ch.href = "ch02.html"
+
+        mock_book = Mock()
+        mock_book.toc = [mock_ch]
+        mock_book.get_item_with_href.return_value = mock_item
+
+        # Partial title match ('Pool of Tears')
+        html = extract_chapter_html(mock_book, "Pool of Tears")
+        assert "Plain text content without headings" in html
+
+    def test_extract_multiple_chapters(self):
+        """Test extract_multiple_chapters function with various output formats"""
+        mock_item = Mock()
+        mock_item.get_content.return_value = (
+            b"<html><body><h2>Chapter 1</h2><p>Content</p></body></html>"
+        )
+
+        mock_ch = Mock()
+        mock_ch.title = "Chapter 1"
+        mock_ch.href = "ch01.html"
+
+        mock_book = Mock()
+        mock_book.toc = [mock_ch]
+        mock_book.get_item_with_href.return_value = mock_item
+
+        # 1. HTML output
+        res_html = extract_multiple_chapters(mock_book, ["Chapter 1"], output="html")
+        assert res_html[0][0] == "Chapter 1"
+        assert "Chapter 1" in res_html[0][1]
+
+        # 2. Text output
+        res_text = extract_multiple_chapters(mock_book, ["Chapter 1"], output="text")
+        assert "Chapter 1" in res_text[0][1]
+
+        # 3. Markdown output
+        res_md = extract_multiple_chapters(mock_book, ["Chapter 1"], output="markdown")
+        assert "Chapter 1" in res_md[0][1]
+
+        # 4. Invalid output format
+        with pytest.raises(ValueError, match="Invalid output format"):
+            extract_multiple_chapters(mock_book, ["Chapter 1"], output="invalid")
