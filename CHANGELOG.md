@@ -19,7 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Path Traversal Protection & Security Validation**: Added `src/ebook_mcp/tools/security.py` module to resolve paths safely, enforce extension whitelists (`.epub`, `.pdf`), validate parameter bounds (`page_number >= 1`), and enforce optional directory scoping via `EBOOK_MCP_ALLOWED_DIR`.
 
 ### 🌟 Added
+- **MCP Inspector Tutorial**: Added [`docs/tutorials/using_mcp_inspector.md`](docs/tutorials/using_mcp_inspector.md) covering high-level MCP concepts, running `uv run poe compose-inspector`, navigating the Tools tab, and executing the 3-step e-book discovery walkthrough with 4-tier flexible chapter matching.
 - **MCP Config Directory & Auto-Injection**: Moved client config preset to `.mcp/mcp.json` and mounted `./.mcp/mcp.json:/app/mcp.json:ro` into the Inspector container (`--config /app/mcp.json`) for seamless zero-manual-setup debugging.
+
 - **Out-of-the-Box Public Domain Sample EPUB**: Added *Alice's Adventures in Wonderland* (`sample_books/alice_in_wonderland.epub`) by Lewis Carroll and configured `docker-compose.yml` to mount `./sample_books:/library:ro` for instant out-of-the-box testing.
 - **MCP Inspector Compose Override**: Added `docker-compose.inspector.yml` mix-in file bundling the official `@modelcontextprotocol/inspector` on ports 5173/3000.
 
