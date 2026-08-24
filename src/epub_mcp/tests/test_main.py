@@ -123,35 +123,75 @@ class TestMainModule:
         mock_extract.return_value = "# Chapter 1\n\nContent"
 
         result = get_epub_chapter_markdown("/path/to/book.epub", "Chapter 1")
-        assert result == "# Chapter 1\n\nContent"
+        assert isinstance(result, dict)
+        assert result["content"] == "# Chapter 1\n\nContent"
+        assert result["start_index"] == 0
+        assert result["end_index"] == len("# Chapter 1\n\nContent")
+        assert result["total_length"] == len("# Chapter 1\n\nContent")
+        assert result["has_more"] is False
+        assert result["next_start_index"] is None
+        assert result["total_pages"] == 1
         mock_extract.assert_called_once()
 
     @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
     @patch("epub_mcp.tools.epub_helper.read_epub")
     def test_get_epub_chapter_markdown_pagination(self, mock_read_epub, mock_extract):
-        """Test get_epub_chapter_markdown pagination for large chapter content"""
+        """Test get_epub_chapter_markdown structured pagination for large chapter content"""
         from epub_mcp.main import get_epub_chapter_markdown
 
         mock_read_epub.return_value = Mock()
-        # 100 character content
+        # 100 characters with no newlines
         mock_extract.return_value = "A" * 100
 
         # Request first page of 30 characters
         res1 = get_epub_chapter_markdown(
             "/path/to/book.epub", "Chapter 1", start_index=0, page_size=30
         )
-        assert res1.startswith("A" * 30)
-        assert (
-            "[Content truncated. Total length: 100 characters. Use start_index=30 to continue.]"
-            in res1
-        )
+        assert res1["content"] == "A" * 30
+        assert res1["start_index"] == 0
+        assert res1["end_index"] == 30
+        assert res1["total_length"] == 100
+        assert res1["has_more"] is True
+        assert res1["next_start_index"] == 30
+        assert res1["total_pages"] == 4
 
         # Request next page from index 30 with size 80 (covers remaining 70 chars)
         res2 = get_epub_chapter_markdown(
             "/path/to/book.epub", "Chapter 1", start_index=30, page_size=80
         )
-        assert res2 == "A" * 70
-        assert "truncated" not in res2
+        assert res2["content"] == "A" * 70
+        assert res2["start_index"] == 30
+        assert res2["end_index"] == 100
+        assert res2["total_length"] == 100
+        assert res2["has_more"] is False
+        assert res2["next_start_index"] is None
+
+        # Beyond total length
+        res3 = get_epub_chapter_markdown(
+            "/path/to/book.epub", "Chapter 1", start_index=150, page_size=30
+        )
+        assert res3["content"] == ""
+        assert res3["has_more"] is False
+        assert res3["next_start_index"] is None
+        assert "No more content available" in res3["message"]
+
+    @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
+    @patch("epub_mcp.tools.epub_helper.read_epub")
+    def test_get_epub_chapter_markdown_validation_errors(self, mock_read_epub, mock_extract):
+        """Test get_epub_chapter_markdown input parameter bounds validation"""
+        from epub_mcp.main import get_epub_chapter_markdown
+
+        mock_read_epub.return_value = Mock()
+        mock_extract.return_value = "Content"
+
+        with pytest.raises(ValueError, match="start_index must be >= 0"):
+            get_epub_chapter_markdown("/path/to/book.epub", "Chapter 1", start_index=-1)
+
+        with pytest.raises(ValueError, match="page_size must be between 1 and 200000"):
+            get_epub_chapter_markdown("/path/to/book.epub", "Chapter 1", page_size=0)
+
+        with pytest.raises(ValueError, match="page_size must be between 1 and 200000"):
+            get_epub_chapter_markdown("/path/to/book.epub", "Chapter 1", page_size=300000)
 
     @patch("epub_mcp.main.mcp.run")
     def test_cli_entry_stdio(self, mock_mcp_run):

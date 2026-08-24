@@ -103,43 +103,124 @@ def get_epub_toc(epub_path: str) -> list[tuple[str, str]]:
     return epub_helper.get_toc(clean_path)
 
 
+MAX_PAGE_SIZE = 200000
+
+
 @mcp.tool()
 @handle_mcp_errors
 def get_epub_chapter_markdown(
     epub_path: str, chapter_id: str, start_index: int = 0, page_size: int = 50000
-) -> str:
-    """Get content of an EPUB chapter in markdown format with optional pagination.
+) -> dict[str, str | int | bool | None]:
+    """Get content of an EPUB chapter in markdown format with structured pagination metadata.
 
     Args:
         epub_path: Path to the EPUB file.
         chapter_id: Chapter identifier. Accepts chapter title (e.g. 'CHAPTER II'),
             href link from get_epub_toc, or 1-based chapter index (e.g. '5').
-        start_index: Starting character index for pagination (default: 0).
-        page_size: Maximum number of characters to return (default: 50000).
+        start_index: Starting character index for pagination (0-based, default: 0).
+            Must be >= 0.
+        page_size: Maximum characters to return per page (default: 50000, max: 200000).
+            Must be >= 1.
 
     Returns:
-        str: Chapter content in markdown format (paginated if truncated).
+        Dict containing:
+            - content (str): Paginated chapter markdown text.
+            - start_index (int): Starting character index of this chunk.
+            - end_index (int): Ending character index of this chunk.
+            - total_length (int): Total character length of full chapter.
+            - has_more (bool): Whether additional content remains after this chunk.
+            - next_start_index (int | None): start_index to pass in next call (None if done).
+            - total_pages (int): Calculated total pages ((total_length + page_size - 1) // size).
+
+
+    Examples:
+        Initial fetch (Page 1 of chapter):
+        >>> get_epub_chapter_markdown("/library/alice.epub", "Chapter 1", page_size=50000)
+        {
+            "content": "# CHAPTER I. Down the Rabbit-Hole...",
+            "start_index": 0,
+            "end_index": 49850,
+            "total_length": 120000,
+            "has_more": True,
+            "next_start_index": 49850,
+            "total_pages": 3
+        }
+
+        Fetching next chunk using returned next_start_index:
+        >>> get_epub_chapter_markdown(
+        ...     "/library/alice.epub", "Chapter 1", start_index=49850, page_size=50000
+        ... )
+
+        Reaching end of chapter:
+        >>> get_epub_chapter_markdown(
+        ...     "/library/alice.epub", "Chapter 1", start_index=150000, page_size=50000
+        ... )
+        {
+            "content": "",
+            "start_index": 150000,
+            "end_index": 120000,
+            "total_length": 120000,
+            "has_more": False,
+            "next_start_index": None,
+            "total_pages": 3,
+            "message": "No more content available. Total length: 120000 characters."
+        }
     """
+    if start_index < 0:
+        raise ValueError(f"start_index must be >= 0 (got {start_index})")
+    if page_size <= 0 or page_size > MAX_PAGE_SIZE:
+        raise ValueError(f"page_size must be between 1 and {MAX_PAGE_SIZE} (got {page_size})")
+
     clean_path = str(
         security.validate_file_path(epub_path, allowed_extensions={".epub"}, must_exist=False)
     )
-    logger.debug(
-        f"calling get_epub_chapter_markdown: {clean_path}, chapter ID: {chapter_id}, "
-        f"start: {start_index}, size: {page_size}"
-    )
     book = epub_helper.read_epub(clean_path)
     full_content = epub_helper.extract_chapter_markdown(book, chapter_id)
+    total_length = len(full_content)
 
-    end_index = start_index + page_size
-    paginated_content = full_content[start_index:end_index]
+    logger.debug(
+        f"calling get_epub_chapter_markdown: {clean_path}, chapter ID: {chapter_id}, "
+        f"start_index: {start_index}, page_size: {page_size}, total_length: {total_length}"
+    )
 
-    if end_index < len(full_content):
-        paginated_content += (
-            f"\n\n[Content truncated. Total length: {len(full_content)} characters. "
-            f"Use start_index={end_index} to continue.]"
-        )
+    total_pages = (total_length + page_size - 1) // page_size if total_length > 0 else 0
 
-    return paginated_content
+    if start_index >= total_length:
+        return {
+            "content": "",
+            "start_index": start_index,
+            "end_index": total_length,
+            "total_length": total_length,
+            "has_more": False,
+            "next_start_index": None,
+            "total_pages": total_pages,
+            "message": f"No more content available. Total length: {total_length} characters.",
+        }
+
+    raw_end_index = min(start_index + page_size, total_length)
+    actual_end_index = raw_end_index
+
+    # Semantic boundary optimization: slice at nearest newline break to avoid cutting mid-line
+
+    if raw_end_index < total_length:
+        lookback = max(start_index + 100, raw_end_index - 500)
+        newline_pos = full_content.rfind("\n", lookback, raw_end_index)
+        if newline_pos != -1:
+            actual_end_index = newline_pos + 1
+
+    paginated_content = full_content[start_index:actual_end_index]
+    has_more = actual_end_index < total_length
+    next_start_index = actual_end_index if has_more else None
+
+    return {
+        "content": paginated_content,
+        "start_index": start_index,
+        "end_index": actual_end_index,
+        "total_length": total_length,
+        "has_more": has_more,
+        "next_start_index": next_start_index,
+        "total_pages": total_pages,
+    }
 
 
 # Entry point for the package CLI (epub-mcp)

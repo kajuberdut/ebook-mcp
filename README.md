@@ -253,8 +253,18 @@ Get metadata (title, author, publisher, language, identifier) from an EPUB file.
 #### `get_epub_toc(epub_path: str) -> List[Tuple[str, str]]`
 Get table of contents from an EPUB file as a list of `(title, href)` entries.
 
-#### `get_epub_chapter_markdown(epub_path: str, chapter_id: str, start_index: int = 0, page_size: int = 50000) -> str`
-Get chapter content in Markdown format with optional pagination for large chapters. Accepts chapter title (e.g. `'CHAPTER II. The Pool of Tears'`), case-insensitive substring (e.g. `'Pool of Tears'`), 1-based index (e.g. `'5'`), or raw internal href anchor link. If content exceeds `page_size`, a truncation notice is included with instructions for retrieving the next chunk using `start_index`.
+#### `get_epub_chapter_markdown(epub_path: str, chapter_id: str, start_index: int = 0, page_size: int = 50000) -> Dict`
+Get chapter content in Markdown format with structured pagination metadata for large chapters. Accepts chapter title (e.g. `'CHAPTER II. The Pool of Tears'`), case-insensitive substring (e.g. `'Pool of Tears'`), 1-based index (e.g. `'5'`), or raw internal href anchor link.
+
+Returns a dictionary containing:
+- `content` (str): Paginated chapter markdown text.
+- `start_index` (int): Starting character index of this page.
+- `end_index` (int): Ending character index of this page.
+- `total_length` (int): Full character length of the chapter.
+- `has_more` (bool): `True` if additional chunks remain.
+- `next_start_index` (int | None): Value to pass in `start_index` for the next chunk (`None` if complete).
+- `total_pages` (int): Calculated total pages `((total_length + page_size - 1) // page_size)`.
+
 
 
 ## Dependencies
