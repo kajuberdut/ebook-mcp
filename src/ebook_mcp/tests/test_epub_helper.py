@@ -23,6 +23,7 @@ except ImportError:
 from ebook_mcp.tools.epub_helper import (
     clean_html,
     convert_html_to_markdown,
+    extract_chapter_html,
     extract_chapter_plain_text,
     flatten_toc,
     get_all_epub_files,
@@ -285,3 +286,30 @@ class TestEpubHelper:
         assert "<p>" not in result
         assert "Title" in result
         assert "Content" in result
+
+    def test_extract_chapter_html_by_title_and_index(self):
+        """Test extract_chapter_html with title matching and numeric index matching."""
+        mock_item = Mock()
+        mock_item.get_content.return_value = (
+            b'<html><body><h1 id="sec2">Chapter Title</h1><p>Test text</p></body></html>'
+        )
+
+        mock_ch1 = Mock()
+        mock_ch1.title = "CHAPTER II. The Pool of Tears"
+        mock_ch1.href = "ch02.html#sec2"
+
+        mock_book = Mock()
+        mock_book.toc = [mock_ch1]
+        mock_book.get_item_with_href.return_value = mock_item
+
+        # 1. Match by exact title
+        html_by_title = extract_chapter_html(mock_book, "CHAPTER II. The Pool of Tears")
+        assert "Chapter Title" in html_by_title
+
+        # 2. Match by case-insensitive title
+        html_by_lower = extract_chapter_html(mock_book, "chapter ii. the pool of tears")
+        assert "Chapter Title" in html_by_lower
+
+        # 3. Match by 1-based index
+        html_by_index = extract_chapter_html(mock_book, "1")
+        assert "Chapter Title" in html_by_index

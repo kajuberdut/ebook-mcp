@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### 🔧 Fixed
+- **EPUB Chapter Identifier Resolution**: Updated `get_epub_chapter_markdown` and `extract_chapter_html` in `epub_helper.py` to support chapter lookup by exact or partial chapter title (e.g. `'CHAPTER II. The Pool of Tears'`), href link, or 1-based index (e.g. `'5'`), enabling seamless tool chaining with `get_epub_toc`.
 - **CLI Entry Point**: Fixed `cli_entry()` in `main.py` to run the module-level `FastMCP` server with all registered tools instead of instantiating an empty server
+
 - **Module Execution**: Added `__main__.py` to support launching server via `python -m ebook_mcp`
 
 ### 🔒 Security

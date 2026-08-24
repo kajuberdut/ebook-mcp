@@ -109,7 +109,11 @@ def get_epub_metadata(epub_path: str) -> dict[str, str | list[str]]:
 @mcp.tool()
 @handle_mcp_errors
 def get_epub_toc(epub_path: str) -> list[tuple[str, str]]:
-    """Get table of contents of an EPUB file."""
+    """Get table of contents of an EPUB file as a list of (title, href) tuples.
+
+    Either the chapter title (e.g. 'CHAPTER II. The Pool of Tears'), href link, or 1-based index
+    can be passed as chapter_id to get_epub_chapter_markdown.
+    """
     clean_path = str(
         security.validate_file_path(epub_path, allowed_extensions={".epub"}, must_exist=False)
     )
@@ -120,7 +124,14 @@ def get_epub_toc(epub_path: str) -> list[tuple[str, str]]:
 @mcp.tool()
 @handle_mcp_errors
 def get_epub_chapter_markdown(epub_path: str, chapter_id: str) -> str:
-    """Get content of an EPUB chapter in markdown format by its chapter ID/href."""
+    """Get content of an EPUB chapter in markdown format.
+
+    Args:
+        epub_path: Path to the EPUB file.
+        chapter_id: Chapter identifier. Accepts chapter title (e.g. 'CHAPTER II'),
+            href link from get_epub_toc, or 1-based chapter index (e.g. '5').
+
+    """
     clean_path = str(
         security.validate_file_path(epub_path, allowed_extensions={".epub"}, must_exist=False)
     )
