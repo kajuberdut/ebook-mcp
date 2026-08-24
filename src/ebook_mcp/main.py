@@ -205,6 +205,12 @@ def cli_entry():
     mcp.settings.host = host
     mcp.settings.port = port
 
+    # Configure DNS rebinding / host header security validation rules for network transport
+    allowed_hosts = [h.strip() for h in os.getenv("EBOOK_MCP_ALLOWED_HOSTS", "*").split(",")]
+    allowed_origins = [o.strip() for o in os.getenv("EBOOK_MCP_ALLOWED_ORIGINS", "*").split(",")]
+    mcp.settings.transport_security.allowed_hosts = allowed_hosts
+    mcp.settings.transport_security.allowed_origins = allowed_origins
+
     if transport == "sse":
         mcp.run(transport="sse")
     else:

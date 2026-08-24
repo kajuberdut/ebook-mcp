@@ -12,7 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Module Execution**: Added `__main__.py` to support launching server via `python -m ebook_mcp`
 
 ### 🔒 Security
+- **DNS Rebinding & Transport Security Controls**: Configured `allowed_hosts` and `allowed_origins` in `cli_entry()` (with `EBOOK_MCP_ALLOWED_HOSTS` and `EBOOK_MCP_ALLOWED_ORIGINS` env var support) so FastMCP accepts container hostnames like `ebook-mcp-server` over SSE network transport without `421 Misdirected Request` errors.
 - **Path Traversal Protection & Security Validation**: Added `src/ebook_mcp/tools/security.py` module to resolve paths safely, enforce extension whitelists (`.epub`, `.pdf`), validate parameter bounds (`page_number >= 1`), and enforce optional directory scoping via `EBOOK_MCP_ALLOWED_DIR`.
+
 
 ### 🌟 Added
 - **Out-of-the-Box Public Domain Sample EPUB**: Added *Alice's Adventures in Wonderland* (`sample_books/alice_in_wonderland.epub`) by Lewis Carroll and configured `docker-compose.yml` to mount `./sample_books:/library:ro` for instant out-of-the-box testing.
