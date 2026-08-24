@@ -2,14 +2,15 @@ services:
   mcp-inspector:
     image: node:22-alpine
     container_name: mcp-inspector
-    command: npx -y @modelcontextprotocol/inspector@latest
+    command: npx --no-warnings --yes @modelcontextprotocol/inspector@latest
     ports:
-      - "${MCP_INSPECTOR_PORT:-5173}:5173"
-      - "${MCP_INSPECTOR_PORT_V2:-6274}:6274"
-      - "${MCP_INSPECTOR_PROXY_PORT:-5174}:3000"
-      - "${MCP_INSPECTOR_PROXY_PORT_V2:-6277}:6277"
+      - "${MCP_INSPECTOR_PORT:-6274}:6274"
+      - "${MCP_INSPECTOR_PROXY_PORT:-6277}:6277"
+      - "${MCP_INSPECTOR_PORT_V1:-5173}:5173"
+      - "${MCP_INSPECTOR_PROXY_PORT_V1:-5174}:3000"
     environment:
       - HOST=0.0.0.0
+      - NPM_CONFIG_LOGLEVEL=error
       - DANGEROUSLY_OMIT_AUTH=true
       - DANGEROUSLY_BIND_ALL_INTERFACES=true
     depends_on:

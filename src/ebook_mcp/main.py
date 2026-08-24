@@ -1,13 +1,16 @@
 import logging
 import os
+import warnings
 from collections.abc import Callable
 from functools import wraps
 
-from mcp.server.fastmcp import FastMCP
+# Suppress upstream pydantic_settings forward reference warnings at module load time
+warnings.filterwarnings("ignore", message=".*Field 'lifespan' has an incomplete definition.*")
 
+from mcp.server.fastmcp import FastMCP  # noqa: E402
 
-from ebook_mcp.tools import epub_helper, pdf_helper, security
-from ebook_mcp.tools.logger_config import setup_logger
+from ebook_mcp.tools import epub_helper, pdf_helper, security  # noqa: E402
+from ebook_mcp.tools.logger_config import setup_logger  # noqa: E402
 
 
 def handle_mcp_errors[T](func: Callable[..., T]) -> Callable[..., T]:
