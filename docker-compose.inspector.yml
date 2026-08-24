@@ -2,7 +2,7 @@ services:
   mcp-inspector:
     image: node:22-alpine
     container_name: mcp-inspector
-    command: npx --no-warnings --yes @modelcontextprotocol/inspector@latest
+    command: npx --no-warnings --yes @modelcontextprotocol/inspector@latest --config /app/mcp.json
     ports:
       - "${MCP_INSPECTOR_PORT:-6274}:6274"
       - "${MCP_INSPECTOR_PROXY_PORT:-6277}:6277"
@@ -13,5 +13,7 @@ services:
       - NPM_CONFIG_LOGLEVEL=error
       - DANGEROUSLY_OMIT_AUTH=true
       - DANGEROUSLY_BIND_ALL_INTERFACES=true
+    volumes:
+      - ./.mcp/mcp.json:/app/mcp.json:ro
     depends_on:
       - ebook-mcp

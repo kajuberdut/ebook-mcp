@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ebook-mcp-server": {
+      "type": "sse",
+      "url": "http://ebook-mcp-server:8000/sse"
+    }
+  }
+}
