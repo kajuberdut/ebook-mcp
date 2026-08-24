@@ -313,3 +313,26 @@ class TestEpubHelper:
         # 3. Match by 1-based index
         html_by_index = extract_chapter_html(mock_book, "1")
         assert "Chapter Title" in html_by_index
+
+    def test_extract_chapter_html_container_div(self):
+        """Test extract_chapter_html when the anchor element is a div container containing headings."""
+        mock_item = Mock()
+        mock_item.get_content.return_value = (
+            b'<html xmlns="http://www.w3.org/1999/xhtml">'
+            b'<body><div class="chapter" id="pgepubid00003">'
+            b"<h2>CHAPTER I. Down the Rabbit-Hole</h2>"
+            b"<p>Alice was beginning to get very tired of sitting by her sister.</p>"
+            b"</div></body></html>"
+        )
+
+        mock_ch1 = Mock()
+        mock_ch1.title = "CHAPTER I. Down the Rabbit-Hole"
+        mock_ch1.href = "ch01.html#pgepubid00003"
+
+        mock_book = Mock()
+        mock_book.toc = [mock_ch1]
+        mock_book.get_item_with_href.return_value = mock_item
+
+        html = extract_chapter_html(mock_book, "ch01.html#pgepubid00003")
+        assert "CHAPTER I. Down the Rabbit-Hole" in html
+        assert "Alice was beginning to get very tired" in html

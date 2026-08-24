@@ -398,28 +398,13 @@ def extract_chapter_html(book: Any, anchor_href: str) -> str:
             raise EpubProcessingError(
                 f"Anchor {anchor} not found in {href}", "unknown", "anchor_lookup"
             )
-        start_level = heading_level(start_elem.name)
-        for elem in start_elem.next_elements:
-            if elem is start_elem:
-                elems.append(str(elem))
-                continue
-            if (
-                hasattr(elem, "name")
-                and elem.name
-                and elem.name.startswith("h")
-                and elem.name[1:].isdigit()
-            ):
-                if heading_level(elem.name) <= start_level:
-                    break
-            elems.append(str(elem))
-    else:
-        chapter_elem = soup.find(["h1", "h2", "h3", "h4", "h5", "h6"])
-        if chapter_elem:
-            start_level = heading_level(chapter_elem.name)
-            for elem in chapter_elem.next_elements:
-                if elem is chapter_elem:
-                    elems.append(str(elem))
-                    continue
+
+        if start_elem.name in ("div", "section", "article", "main", "body"):
+            html = str(start_elem)
+        else:
+            start_level = heading_level(start_elem.name)
+            elems = [str(start_elem)]
+            for elem in start_elem.next_siblings:
                 if (
                     hasattr(elem, "name")
                     and elem.name
@@ -429,10 +414,27 @@ def extract_chapter_html(book: Any, anchor_href: str) -> str:
                     if heading_level(elem.name) <= start_level:
                         break
                 elems.append(str(elem))
+            html = "\n".join(elems)
+    else:
+        chapter_elem = soup.find(["h1", "h2", "h3", "h4", "h5", "h6"])
+        if chapter_elem:
+            start_level = heading_level(chapter_elem.name)
+            elems = [str(chapter_elem)]
+            for elem in chapter_elem.next_siblings:
+                if (
+                    hasattr(elem, "name")
+                    and elem.name
+                    and elem.name.startswith("h")
+                    and elem.name[1:].isdigit()
+                ):
+                    if heading_level(elem.name) <= start_level:
+                        break
+                elems.append(str(elem))
+            html = "\n".join(elems)
         else:
             body_elem = soup.find("body")
-            elems = [str(body_elem)] if body_elem else [str(soup)]
-    html = "\n".join(elems)
+            html = str(body_elem) if body_elem else str(soup)
+
     return clean_html(html)
 
 
