@@ -192,7 +192,8 @@ To spin up the containerized stack along with the official **MCP Inspector** web
 ```bash
 uv run poe compose inspector
 ```
-Open `http://localhost:6274` in your browser, select **SSE** transport, and connect to `http://ebook-mcp-server:8000/sse` or `http://localhost:8000/sse`.
+Open `http://localhost:6274` in your browser. For a full step-by-step tutorial on navigating the Inspector tools tab and testing tools, see the [MCP Inspector Tutorial](docs/tutorials/using_mcp_inspector.md).
+
 
 
 #### Building and Running via Docker CLI
