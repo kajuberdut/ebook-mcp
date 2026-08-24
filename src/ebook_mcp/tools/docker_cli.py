@@ -15,9 +15,10 @@ def run_compose():
             "-f",
             "docker-compose.inspector.yml",
             "up",
+            "--build",
         ]
     else:
-        cmd = ["docker", "compose", "up", "-d"]
+        cmd = ["docker", "compose", "up", "-d", "--build"]
 
     print(f"Running command: {' '.join(cmd)}")
     subprocess.run(cmd, check=True)
