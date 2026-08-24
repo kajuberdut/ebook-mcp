@@ -1,9 +1,8 @@
 services:
   mcp-inspector:
-    image: node:20-alpine
+    image: node:22-alpine
     container_name: mcp-inspector
     command: npx -y @modelcontextprotocol/inspector@latest
-
     ports:
       - "${MCP_INSPECTOR_PORT:-5173}:5173"
       - "${MCP_INSPECTOR_PORT_V2:-6274}:6274"
@@ -12,5 +11,6 @@ services:
     environment:
       - HOST=0.0.0.0
       - DANGEROUSLY_OMIT_AUTH=true
+      - DANGEROUSLY_BIND_ALL_INTERFACES=true
     depends_on:
       - ebook-mcp
