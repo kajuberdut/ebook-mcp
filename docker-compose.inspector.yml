@@ -16,4 +16,5 @@ services:
     volumes:
       - ./.mcp/mcp.json:/app/mcp.json:ro
     depends_on:
-      - ebook-mcp
+      - epub-mcp
+

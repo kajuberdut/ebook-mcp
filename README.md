@@ -1,17 +1,17 @@
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/onebirdrocks-ebook-mcp-badge.png)](https://mseep.ai/app/onebirdrocks-ebook-mcp)
+# Epub-MCP
 
-# Ebook-MCP
+> **Credits & Acknowledgments**: `epub-mcp` is maintained by **Patrick Shechet** ([`@kajuberdut`](https://github.com/kajuberdut)). It is a focused fork of and directly based on the original [`ebook-mcp`](https://github.com/onebirdrocks/ebook-mcp) project created by **onebird** ([`@onebirdrocks`](https://github.com/onebirdrocks)).
 
-<img src="logo.png" alt="ebook-mcp logo" width="132" height="132">
+Epub-MCP is a powerful Model Context Protocol (MCP) server for processing EPUB e-books. Built on the [Model Context Protocol](https://github.com/modelcontextprotocol), it provides a set of standardized APIs for seamless integration between LLM applications and e-book reading capabilities. Focused exclusively on the EPUB format for rich chapter-based extraction and navigation.
 
-Ebook-MCP is a powerful Model Context Protocol (MCP) server for processing EPUB e-books. Built on the [Model Context Protocol](https://github.com/modelcontextprotocol), it provides a set of standardized APIs for seamless integration between LLM applications and e-book reading capabilities. Focused exclusively on the EPUB format for rich chapter-based extraction and navigation.
 
 
 
 
 ## Use Cases & Value
 
-Ebook-MCP transforms how you interact with your digital books by enabling natural language conversations with your reading materials. It seamlessly integrates with modern AI-powered IDEs like Cursor and Claude, allowing you to:
+Epub-MCP
+ transforms how you interact with your digital books by enabling natural language conversations with your reading materials. It seamlessly integrates with modern AI-powered IDEs like Cursor and Claude, allowing you to:
 
 - **Smart Library Management**: Simply ask "Show me all EPUB files in my downloads folder" or "Find books about GenAI in my library"
 - **Interactive Reading Experience**: Have natural conversations about your books:
@@ -27,7 +27,8 @@ Ebook-MCP transforms how you interact with your digital books by enabling natura
   - "Show me the chapters about fine-tuning"
   - "Take me to the part about vector databases"
 
-By bridging the gap between traditional e-books and AI capabilities, Ebook-MCP helps readers extract more value from their digital library through intuitive, conversation-based interactions.
+By bridging the gap between traditional e-books and AI capabilities, Epub-MCP
+ helps readers extract more value from their digital library through intuitive, conversation-based interactions.
 
 Quick demo - Run with DeepSeek (Please check all the examples with Claude/OpenAI under mcp-client-example folder) 
 ```
@@ -135,13 +136,13 @@ Overall Evaluation:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/ebook-mcp.git
-cd ebook-mcp
+git clone https://github.com/kajuberdut/epub-mcp.git
+cd epub-mcp
 ```
 
 2. Install dependencies using `uv`:
 ```bash
-uv pip install -e .
+uv sync
 ```
 
 ## Usage
@@ -150,28 +151,28 @@ uv pip install -e .
 
 Run the server in development mode:
 ```bash
-uv run mcp dev src/ebook_mcp/main.py
+uv run mcp dev src/epub_mcp/main.py
 ```
 
 
 You can visit http://localhost:5173/ for testing & debugging purpose 
 You can also install the inspector for the test.
 ```
-npx @modelcontextprotocol/inspector uv --directory . run src/ebook_mcp/main.py
+npx @modelcontextprotocol/inspector uv --directory . run src/epub_mcp/main.py
 ```
 
 ### Starting the MCP Server in Prod mode
 
 Run the server:
 ```bash
-uv run src/ebook_mcp/main.py
+uv run src/epub_mcp/main.py
 ```
 
 ### Docker & Docker Compose Deployment
 
 #### Running with Poe & Docker Compose (Recommended)
 
-1. The repository includes an out-of-the-box public domain e-book (*Alice's Adventures in Wonderland* by Lewis Carroll) inside `./sample_books/`. You can also add your own `.epub` and `.pdf` files to `./sample_books/` or customize volume mounts in `docker-compose.yml`.
+1. The repository includes an out-of-the-box public domain e-book (*Alice's Adventures in Wonderland* by Lewis Carroll) inside `./sample_books/`. You can also add your own `.epub` files to `./sample_books/` or customize volume mounts in `docker-compose.yml`.
 2. Launch the containerized server:
 ```bash
 uv run poe compose up
@@ -193,14 +194,14 @@ Open `http://localhost:6274` in your browser. For a full step-by-step tutorial o
 
 ```bash
 # Build the production image
-docker build -t ebook-mcp .
+docker build -t epub-mcp .
 
 # Run container with your e-book library mounted
 docker run -d \
-  --name ebook-mcp-server \
+  --name epub-mcp-server \
   -p 8000:8000 \
   -v /path/to/your/ebooks:/library:ro \
-  ebook-mcp
+  epub-mcp
 ```
 
 
@@ -209,17 +210,18 @@ docker run -d \
 
 
 Add the following configuration in Cursor
-```bash
-"ebook-mcp":{
-            "command": "uv",
-            "args": [
-                "--directory",
-                "/Users/onebird/github/ebook-mcp/src/ebook_mcp/",
-                "run",
-                "main.py"
-            ]
-        }
+```json
+"epub-mcp": {
+  "command": "uv",
+  "args": [
+    "--directory",
+    "/path/to/epub-mcp/src/epub_mcp/",
+    "run",
+    "main.py"
+  ]
+}
 ```
+
 
 
 

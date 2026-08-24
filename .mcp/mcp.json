@@ -1,8 +1,13 @@
 {
   "mcpServers": {
+    "epub-mcp-server": {
+      "type": "sse",
+      "url": "http://epub-mcp-server:8000/sse"
+    },
     "ebook-mcp-server": {
       "type": "sse",
-      "url": "http://ebook-mcp-server:8000/sse"
+      "url": "http://epub-mcp-server:8000/sse"
     }
   }
+
 }

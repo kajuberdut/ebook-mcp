@@ -73,7 +73,8 @@ class MCPClient:
             removed_tokens = self._estimate_tokens(removed_msg["content"])
             total_tokens -= removed_tokens
             logger.debug(
-                f"Removed message due to token limit: {removed_msg['role']}, tokens: {removed_tokens}"
+                f"Removed message due to token limit: {removed_msg['role']}, "
+                f"tokens: {removed_tokens}"
             )
 
         if initial_count != len(self.messages):

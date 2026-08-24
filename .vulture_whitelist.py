@@ -5,8 +5,8 @@ import html2text  # noqa: F401
 import main  # noqa: F401
 import main as mcp  # noqa: F401
 
-from ebook_mcp.tests import conftest  # noqa: F401
-from ebook_mcp.tools import epub_helper  # noqa: F401
+from epub_mcp.tests import conftest  # noqa: F401
+from epub_mcp.tools import epub_helper  # noqa: F401
 
 # FastMCP Prompts and Tools (invoked dynamically by FastMCP framework)
 main.summarize_chapter

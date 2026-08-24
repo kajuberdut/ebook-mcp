@@ -133,8 +133,10 @@ class MCPClient:
         final_text = []
         while True:
             self.logger.debug(
-                f"Sending request to OpenAI with {len(self.conversation_history)} messages in history"
+                f"Sending request to OpenAI with {len(self.conversation_history)} "
+                "messages in history"
             )
+
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=self.conversation_history,

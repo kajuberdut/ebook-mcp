@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from ebook_mcp.tools.security import (
+from epub_mcp.tools.security import (
     SecurityValidationError,
     validate_file_path,
 )
@@ -52,7 +52,7 @@ def test_validate_file_path_allowed_dir():
         bad_file = forbidden_path / "book.epub"
         bad_file.write_text("epub")
 
-        with patch.dict("os.environ", {"EBOOK_MCP_ALLOWED_DIR": str(allowed_path)}):
+        with patch.dict("os.environ", {"EPUB_MCP_ALLOWED_DIR": str(allowed_path)}):
             assert (
                 validate_file_path(good_file, allowed_extensions={".epub"}) == good_file.resolve()
             )

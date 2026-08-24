@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ebook_mcp.tools.logger_config import (
+from epub_mcp.tools.logger_config import (
     StructuredFormatter,
     StructuredLogger,
     log_operation,
@@ -147,8 +147,8 @@ class TestSetupLogger:
     def test_get_default_log_dir_custom_env(self):
         """Test get_default_log_dir with custom environment variable"""
         with tempfile.TemporaryDirectory() as temp_dir:
-            with patch.dict("os.environ", {"EBOOK_MCP_LOG_DIR": temp_dir}):
-                from ebook_mcp.tools.logger_config import get_default_log_dir
+            with patch.dict("os.environ", {"EPUB_MCP_LOG_DIR": temp_dir}):
+                from epub_mcp.tools.logger_config import get_default_log_dir
 
                 result = get_default_log_dir()
                 assert result == Path(temp_dir)
@@ -156,10 +156,8 @@ class TestSetupLogger:
     def test_setup_logger_creates_directory(self):
         """Test that setup_logger creates logs directory"""
         with tempfile.TemporaryDirectory() as temp_dir:
-            with patch.dict("os.environ", {"EBOOK_MCP_LOG_DIR": temp_dir}):
-                with patch(
-                    "ebook_mcp.tools.logger_config.logging.FileHandler"
-                ) as mock_file_handler:
+            with patch.dict("os.environ", {"EPUB_MCP_LOG_DIR": temp_dir}):
+                with patch("epub_mcp.tools.logger_config.logging.FileHandler") as mock_file_handler:
                     mock_handler = MagicMock()
                     mock_handler.level = logging.DEBUG
                     mock_file_handler.return_value = mock_handler
@@ -169,13 +167,12 @@ class TestSetupLogger:
 
     def test_setup_logger_configures_handlers(self):
         """Test that setup_logger configures handlers correctly"""
-        with patch("ebook_mcp.tools.logger_config.logging.getLogger") as mock_get_logger:
+        with patch("epub_mcp.tools.logger_config.logging.getLogger") as mock_get_logger:
             mock_logger = MagicMock()
             mock_get_logger.return_value = mock_logger
-
             setup_logger()
+            mock_get_logger.assert_called_with()
 
-            # Verify handlers were added
             mock_logger.addHandler.assert_called()
             assert mock_logger.addHandler.call_count == 2  # file and console handlers
 

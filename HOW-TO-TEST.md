@@ -1,11 +1,11 @@
-# Ebook-MCP Unit Testing Guide
+# Epub-MCP Unit Testing Guide
 
-This guide explains how to run unit tests for the server components of the `ebook-mcp` project.
+This guide explains how to run unit tests for the server components of the `epub-mcp` project.
 
 ## Test Directory Structure
 
 ```
-src/ebook_mcp/tests/
+src/epub_mcp/tests/
 ├── conftest.py              # pytest configuration and shared fixtures
 ├── test_main.py             # Unit tests for main.py
 ├── test_epub_helper.py      # Unit tests for epub_helper.py
@@ -56,27 +56,28 @@ uv run poe lint
 
 ```bash
 # Run all tests
-pytest src/ebook_mcp/tests/ -v
+pytest src/epub_mcp/tests/ -v
 
 # Run specific test file
-pytest src/ebook_mcp/tests/test_main.py -v
+pytest src/epub_mcp/tests/test_main.py -v
 
 # Run specific test class
-pytest src/ebook_mcp/tests/test_main.py::TestEpubFunctions -v
+pytest src/epub_mcp/tests/test_main.py::TestEpubFunctions -v
 
 # Run specific test method
-pytest src/ebook_mcp/tests/test_main.py::TestEpubFunctions::test_get_all_epub_files_empty_directory -v
+pytest src/epub_mcp/tests/test_main.py::TestEpubFunctions::test_get_all_epub_files_empty_directory -v
 ```
 
 ### Method 3: Running with uv
 
 ```bash
 # Run all tests
-uv run pytest src/ebook_mcp/tests/ -v
+uv run pytest src/epub_mcp/tests/ -v
 
 # Run specific test
-uv run pytest src/ebook_mcp/tests/test_main.py -v
+uv run pytest src/epub_mcp/tests/test_main.py -v
 ```
+
 
 ### Method 4: Using Test Runner Script
 

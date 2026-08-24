@@ -36,7 +36,8 @@ def validate_file_path(
                 f"Invalid file extension '{ext}'. Allowed extensions: {allowed_str}"
             )
 
-    allowed_dir_env = os.getenv("EBOOK_MCP_ALLOWED_DIR")
+    allowed_dir_env = os.getenv("EPUB_MCP_ALLOWED_DIR", os.getenv("EBOOK_MCP_ALLOWED_DIR"))
+
     if allowed_dir_env:
         allowed_root = Path(allowed_dir_env).resolve()
         try:

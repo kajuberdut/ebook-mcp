@@ -20,7 +20,7 @@ try:
 except ImportError:
     BeautifulSoup = Mock()
 
-from ebook_mcp.tools.epub_helper import (
+from epub_mcp.tools.epub_helper import (
     EpubProcessingError,
     clean_html,
     convert_html_to_markdown,
@@ -56,7 +56,7 @@ class TestEpubHelper:
             result = get_all_epub_files(temp_dir)
             assert set(result) == {"book1.epub", "book2.epub"}
 
-    @patch("ebook_mcp.tools.epub_helper.epub.read_epub")
+    @patch("epub_mcp.tools.epub_helper.epub.read_epub")
     def test_get_toc_success(self, mock_read_epub):
         """Test get_toc successful case"""
         # Mock EPUB book with TOC
@@ -82,7 +82,7 @@ class TestEpubHelper:
         finally:
             Path(epub_path).unlink(missing_ok=True)
 
-    @patch("ebook_mcp.tools.epub_helper.epub.read_epub")
+    @patch("epub_mcp.tools.epub_helper.epub.read_epub")
     def test_get_toc_nested_structure(self, mock_read_epub):
         """Test get_toc with nested TOC structure"""
         # Mock EPUB book with nested TOC
@@ -113,7 +113,7 @@ class TestEpubHelper:
         with pytest.raises(FileNotFoundError):
             get_toc("/path/to/nonexistent.epub")
 
-    @patch("ebook_mcp.tools.epub_helper.epub.read_epub")
+    @patch("epub_mcp.tools.epub_helper.epub.read_epub")
     def test_get_toc_parsing_error(self, mock_read_epub):
         """Test get_toc with parsing error"""
         mock_read_epub.side_effect = Exception("EPUB parsing error")
@@ -128,7 +128,7 @@ class TestEpubHelper:
         finally:
             Path(epub_path).unlink(missing_ok=True)
 
-    @patch("ebook_mcp.tools.epub_helper.epub.read_epub")
+    @patch("epub_mcp.tools.epub_helper.epub.read_epub")
     def test_get_meta_success(self, mock_read_epub):
         """Test get_meta successful case"""
         # Mock EPUB book with metadata
@@ -175,7 +175,7 @@ class TestEpubHelper:
         with pytest.raises(FileNotFoundError):
             get_meta("/path/to/nonexistent.epub")
 
-    @patch("ebook_mcp.tools.epub_helper.epub.read_epub")
+    @patch("epub_mcp.tools.epub_helper.epub.read_epub")
     def test_get_meta_parsing_error(self, mock_read_epub):
         """Test get_meta with parsing error"""
         mock_read_epub.side_effect = Exception("EPUB parsing error")
@@ -190,7 +190,7 @@ class TestEpubHelper:
         finally:
             Path(epub_path).unlink(missing_ok=True)
 
-    @patch("ebook_mcp.tools.epub_helper.epub.read_epub")
+    @patch("epub_mcp.tools.epub_helper.epub.read_epub")
     def test_read_epub_success(self, mock_read_epub):
         """Test read_epub successful case"""
         mock_book = Mock()
@@ -275,7 +275,7 @@ class TestEpubHelper:
         assert "# Title" in result
         assert "**bold**" in result
 
-    @patch("ebook_mcp.tools.epub_helper.extract_chapter_html")
+    @patch("epub_mcp.tools.epub_helper.extract_chapter_html")
     def test_extract_chapter_plain_text(self, mock_extract_html):
         """Test extract_chapter_plain_text function"""
         mock_extract_html.return_value = "<h1>Title</h1><p>Content</p>"
@@ -371,8 +371,8 @@ class TestEpubHelper:
         mock_book.toc = [mock_ch]
         mock_book.get_item_with_href.return_value = mock_item
 
-        with patch("ebook_mcp.tools.epub_helper.epub.read_epub", return_value=mock_book):
-            from ebook_mcp.tools.epub_helper import extract_chapter_from_epub
+        with patch("epub_mcp.tools.epub_helper.epub.read_epub", return_value=mock_book):
+            from epub_mcp.tools.epub_helper import extract_chapter_from_epub
 
             html = extract_chapter_from_epub("/fake/book.epub", "Chapter 1")
             assert "Chapter 1" in html

@@ -106,17 +106,17 @@ def get_default_log_dir() -> Path:
     2. platformdirs user_state_dir("ebook-mcp") / "logs" (~/.local/state/ebook-mcp/logs)
     3. Fallback to temp directory if target directory is not writable
     """
-    env_dir = os.getenv("EBOOK_MCP_LOG_DIR")
+    env_dir = os.getenv("EPUB_MCP_LOG_DIR", os.getenv("EBOOK_MCP_LOG_DIR"))
     if env_dir:
         log_dir = Path(env_dir)
     else:
-        log_dir = Path(user_state_dir("ebook-mcp", appauthor=False)) / "logs"
+        log_dir = Path(user_state_dir("epub-mcp", appauthor=False)) / "logs"
 
     try:
         log_dir.mkdir(parents=True, exist_ok=True)
         return log_dir
     except (PermissionError, OSError):
-        temp_dir = Path(tempfile.gettempdir()) / "ebook-mcp" / "logs"
+        temp_dir = Path(tempfile.gettempdir()) / "epub-mcp" / "logs"
         temp_dir.mkdir(parents=True, exist_ok=True)
         return temp_dir
 
@@ -124,9 +124,9 @@ def get_default_log_dir() -> Path:
 def setup_logger(level: str = None, log_file: str = None):
     """Configure structured logging system for Linux and MCP stdio transport.
 
-    - Log level defaults to EBOOK_MCP_LOG_LEVEL or 'INFO'
+    - Log level defaults to EPUB_MCP_LOG_LEVEL or 'INFO'
     - Console logs explicitly stream to sys.stderr to prevent stdio MCP protocol corruption
-    - File logs output JSON-structured entries to XDG log dir or EBOOK_MCP_LOG_DIR
+    - File logs output JSON-structured entries to XDG log dir or EPUB_MCP_LOG_DIR
     """
     import sys
     import warnings
@@ -135,10 +135,10 @@ def setup_logger(level: str = None, log_file: str = None):
     warnings.filterwarnings("ignore", message=".*Field 'lifespan' has an incomplete definition.*")
 
     if level is None:
-        level = os.getenv("EBOOK_MCP_LOG_LEVEL", "INFO")
+        level = os.getenv("EPUB_MCP_LOG_LEVEL", os.getenv("EBOOK_MCP_LOG_LEVEL", "INFO"))
 
     if log_file is None:
-        log_file = f"ebook_mcp_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        log_file = f"epub_mcp_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
     log_dir = get_default_log_dir()
     log_file_path = log_dir / log_file

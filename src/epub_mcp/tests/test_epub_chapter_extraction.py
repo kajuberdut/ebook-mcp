@@ -9,16 +9,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 # Skip tests if dependencies are not available
 try:
-    import html2text
-    from bs4 import BeautifulSoup
-    from ebooklib import epub
+    import html2text  # noqa: F401
+    from bs4 import BeautifulSoup  # noqa: F401
+    from ebooklib import epub  # noqa: F401
 
     DEPENDENCIES_AVAILABLE = True
+
 except ImportError:
     DEPENDENCIES_AVAILABLE = False
 
 if DEPENDENCIES_AVAILABLE:
-    from ebook_mcp.tools.epub_helper import (
+    from epub_mcp.tools.epub_helper import (
         extract_chapter_html,
         extract_chapter_markdown,
     )
@@ -104,9 +105,10 @@ class TestExtractChapterHtml:
                 
                 <h2 id="section1_3">1.3 Append-only</h2>
                 <h3 id="subsection">Safe incremental updates with logs</h3>
-                <p>One way to do incremental updates is to just append the updates to a file. 
-                This is called a "log" because it's append-only. It's safer than in-place updates 
-                because no data is overwritten; you can always recover the old data after a crash.</p>
+                <p>One way to do incremental updates is to just append the updates to a file.
+                This is called a "log" because it's append-only. It's safer than in-place
+                updates because no data is overwritten; you can recover after a crash.</p>
+
                 
                 <h2 id="section1_4">1.4 Another Section</h2>
                 <p>Another section content</p>
@@ -229,7 +231,7 @@ class TestExtractChapterHtml:
         mock_book.toc = []
 
         # Test with non-existent chapter
-        from ebook_mcp.tools.epub_helper import EpubProcessingError
+        from epub_mcp.tools.epub_helper import EpubProcessingError
 
         with pytest.raises(EpubProcessingError, match="not found in TOC"):
             extract_chapter_html(mock_book, "nonexistent.xhtml")

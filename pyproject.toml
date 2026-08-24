@@ -1,8 +1,8 @@
 [project]
-name = "ebook-mcp"
+name = "epub-mcp"
 version = "0.1.8"
-description = "An MCP server for reading and querying EPUB e-books."
-authors = [{ name = "onebird", email = "rymrocks@163.com" }]
+description = "An MCP server for reading and querying EPUB e-books. Based on ebook-mcp by onebird."
+authors = [{ name = "Patrick Shechet", email = "patrick.shechet@gmail.com" }]
 license = "Apache-2.0"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -31,14 +31,14 @@ dev = [
 
 
 [project.scripts]
-ebook-mcp = "ebook_mcp.main:cli_entry"
+epub-mcp = "epub_mcp.main:cli_entry"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/ebook_mcp"]
+packages = ["src/epub_mcp"]
 
 [tool.ruff]
 line-length = 100
@@ -54,10 +54,10 @@ lint-fix = "ruff check --fix ."
 format = "ruff format ."
 format-check = "ruff format --check ."
 vulture = "vulture src .vulture_whitelist.py"
-test = "pytest --cov=ebook_mcp --cov-report=term-missing"
-coverage = "pytest --cov=ebook_mcp --cov-report=term-missing --cov-report=html"
+test = "pytest --cov=epub_mcp --cov-report=term-missing"
+coverage = "pytest --cov=epub_mcp --cov-report=term-missing --cov-report=html"
 
 check = ["format-check", "lint", "vulture"]
 compose-up = "docker compose up -d --build"
 compose-inspector = "docker compose -f docker-compose.yml -f docker-compose.inspector.yml up --build"
-compose = "ebook_mcp.tools.docker_cli:run_compose"
+compose = "epub_mcp.tools.docker_cli:run_compose"

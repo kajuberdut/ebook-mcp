@@ -1,6 +1,6 @@
-# Tutorial: Using MCP Inspector to Understand `ebook-mcp`
+# Tutorial: Using MCP Inspector to Understand `epub-mcp`
 
-This tutorial provides a high-level overview of the **Model Context Protocol (MCP)** and a step-by-step walkthrough for using the official **MCP Inspector** web UI to explore and debug the `ebook-mcp` server.
+This tutorial provides a high-level overview of the **Model Context Protocol (MCP)** and a step-by-step walkthrough for using the official **MCP Inspector** web UI to explore and debug the `epub-mcp` server.
 
 ---
 
@@ -23,7 +23,7 @@ Rather than writing custom API wrappers for every LLM client, MCP standardizes h
 
 ## 2. Launching MCP Inspector with Docker Compose
 
-`ebook-mcp` includes a bundled Docker Compose mix-in file and Poe task to launch the server alongside the official **MCP Inspector** web interface.
+`epub-mcp` includes a bundled Docker Compose mix-in file and Poe task to launch the server alongside the official **MCP Inspector** web interface.
 
 ### Step 1: Start the Inspector Stack
 
@@ -34,10 +34,11 @@ uv run poe compose-inspector
 ```
 
 This command orchestrates two containerized services:
-- **`ebook-mcp-server`**: The FastMCP Python server listening for SSE connections on `http://localhost:8000/sse`.
+- **`epub-mcp-server`**: The FastMCP Python server listening for SSE connections on `http://localhost:8000/sse`.
 - **`mcp-inspector`**: The Node.js MCP Inspector web UI listening on `http://localhost:6274`.
 
-> **Zero-Configuration Setup**: The `.mcp/mcp.json` file is automatically mounted into the Inspector container (`--config /app/mcp.json`), so `ebook-mcp-server` is pre-connected automatically without requiring manual connection setup.
+> **Zero-Configuration Setup**: The `.mcp/mcp.json` file is automatically mounted into the Inspector container (`--config /app/mcp.json`), so `epub-mcp-server` is pre-connected automatically without requiring manual connection setup.
+
 
 ### Step 2: Open the Web UI
 

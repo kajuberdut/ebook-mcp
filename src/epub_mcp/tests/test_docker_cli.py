@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from ebook_mcp.tools.docker_cli import run_compose
+from epub_mcp.tools.docker_cli import run_compose
 
 
 @patch("sys.argv", ["poe", "up"])

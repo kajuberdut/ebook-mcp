@@ -10,8 +10,8 @@ warnings.filterwarnings("ignore", message=".*Field 'lifespan' has an incomplete 
 from mcp.server.fastmcp import FastMCP  # noqa: E402
 from mcp.server.transport_security import TransportSecuritySettings  # noqa: E402
 
-from ebook_mcp.tools import epub_helper, security  # noqa: E402
-from ebook_mcp.tools.logger_config import setup_logger  # noqa: E402
+from epub_mcp.tools import epub_helper, security  # noqa: E402
+from epub_mcp.tools.logger_config import setup_logger  # noqa: E402
 
 
 def handle_mcp_errors[T](func: Callable[..., T]) -> Callable[..., T]:
@@ -38,9 +38,9 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastMCP server with instructions
 mcp = FastMCP(
-    "ebook-mcp",
+    "epub-mcp",
     instructions=(
-        "Ebook-MCP is a Model Context Protocol server for processing EPUB e-books. "
+        "Epub-MCP is a Model Context Protocol server for processing EPUB e-books. "
         "It provides standardized tools to extract metadata, table of contents, "
         "and chapter content. Always supply absolute file paths."
     ),
@@ -122,28 +122,28 @@ def get_epub_chapter_markdown(epub_path: str, chapter_id: str) -> str:
     return epub_helper.extract_chapter_markdown(book, chapter_id)
 
 
-# Entry point for the package CLI (ebook-mcp)
+# Entry point for the package CLI (epub-mcp)
 
 
 def cli_entry():
     setup_logger()
-    transport = os.getenv("EBOOK_MCP_TRANSPORT", "stdio").lower()
-    host = os.getenv("EBOOK_MCP_HOST", "0.0.0.0")
-    port = int(os.getenv("EBOOK_MCP_PORT", "8000"))
+    transport = os.getenv("EPUB_MCP_TRANSPORT", os.getenv("EBOOK_MCP_TRANSPORT", "stdio")).lower()
+    host = os.getenv("EPUB_MCP_HOST", os.getenv("EBOOK_MCP_HOST", "0.0.0.0"))
+    port = int(os.getenv("EPUB_MCP_PORT", os.getenv("EBOOK_MCP_PORT", "8000")))
 
-    logger.info(f"Starting ebook-mcp server (transport={transport})")
+    logger.info(f"Starting epub-mcp server (transport={transport})")
     mcp.settings.host = host
     mcp.settings.port = port
 
     # Configure DNS rebinding / host header security validation rules for network transport
-    raw_hosts = os.getenv("EBOOK_MCP_ALLOWED_HOSTS", "*")
-    raw_origins = os.getenv("EBOOK_MCP_ALLOWED_ORIGINS", "*")
+    raw_hosts = os.getenv("EPUB_MCP_ALLOWED_HOSTS", os.getenv("EBOOK_MCP_ALLOWED_HOSTS", "*"))
+    raw_origins = os.getenv("EPUB_MCP_ALLOWED_ORIGINS", os.getenv("EBOOK_MCP_ALLOWED_ORIGINS", "*"))
 
     if raw_hosts == "*" or raw_origins == "*":
         logger.warning(
             "UNSAFE DEFAULTS WARNING: FastMCP is using wildcard allowed hosts/origins ('*') "
             "with DNS rebinding protection disabled. Suitable for dev/testing, NOT production. "
-            "To resolve for production, set EBOOK_MCP_ALLOWED_HOSTS and EBOOK_MCP_ALLOWED_ORIGINS "
+            "To resolve for production, set EPUB_MCP_ALLOWED_HOSTS and EPUB_MCP_ALLOWED_ORIGINS "
             "to specific host lists (e.g. 'myhost.com,192.168.1.100')."
         )
         mcp.settings.transport_security = TransportSecuritySettings(
@@ -152,6 +152,7 @@ def cli_entry():
                 "localhost:*",
                 "127.0.0.1:*",
                 "[::1]:*",
+                "epub-mcp-server:*",
                 "ebook-mcp-server:*",
                 "0.0.0.0:*",
                 "*",
@@ -161,6 +162,7 @@ def cli_entry():
                 "http://localhost:*",
                 "http://127.0.0.1:*",
                 "http://[::1]:*",
+                "http://epub-mcp-server:*",
                 "http://ebook-mcp-server:*",
                 "http://0.0.0.0:*",
                 "*",
@@ -176,12 +178,12 @@ def cli_entry():
             allowed_origins=allowed_origins,
         )
 
-    allowed_dir_env = os.getenv("EBOOK_MCP_ALLOWED_DIR")
+    allowed_dir_env = os.getenv("EPUB_MCP_ALLOWED_DIR", os.getenv("EBOOK_MCP_ALLOWED_DIR"))
     if not allowed_dir_env:
         logger.warning(
-            "UNSAFE DEFAULTS WARNING: EBOOK_MCP_ALLOWED_DIR environment variable is not set. "
+            "UNSAFE DEFAULTS WARNING: EPUB_MCP_ALLOWED_DIR environment variable is not set. "
             "File path boundaries are unconstrained. To resolve for production, set "
-            "EBOOK_MCP_ALLOWED_DIR to your book directory path (e.g. '/library')."
+            "EPUB_MCP_ALLOWED_DIR to your book directory path (e.g. '/library')."
         )
 
     if transport == "sse":

@@ -5,9 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+### 🌟 Rebranding & Authorship
+- **Project Rebranded to `epub-mcp`**: Rebranded project from `ebook-mcp` to `epub-mcp` (CLI executable `epub-mcp`, Python package `epub_mcp`). Updated project authorship in `pyproject.toml` to **Patrick Shechet** (`patrick.shechet@gmail.com`) while prominently crediting the original author **onebird** ([`@onebirdrocks`](https://github.com/onebirdrocks)) and repository [`onebirdrocks/ebook-mcp`](https://github.com/onebirdrocks/ebook-mcp).
+- **Environment Variables & Container Services**: Introduced `EPUB_MCP_*` environment variables (`EPUB_MCP_TRANSPORT`, `EPUB_MCP_HOST`, `EPUB_MCP_PORT`, `EPUB_MCP_ALLOWED_HOSTS`, `EPUB_MCP_ALLOWED_ORIGINS`, `EPUB_MCP_ALLOWED_DIR`, `EPUB_MCP_LOG_DIR`, `EPUB_MCP_LOG_LEVEL`) with automatic fallback to legacy `EBOOK_MCP_*` names for backward compatibility. Updated Docker Compose service and container names to `epub-mcp-server`.
 
-### 🔧 Fixed
 - **EPUB Container Element Extraction**: Fixed a bug in `extract_chapter_html` where anchor targets pointing to wrapper container elements (such as `<div class="chapter" id="...">`) were prematurely truncated after line 1 due to `next_elements` DOM iteration encountering internal `<h2>` headings. Switched to container-aware node evaluation and `next_siblings` DOM traversal.
 - **EPUB Chapter Identifier Resolution**: Updated `get_epub_chapter_markdown` and `extract_chapter_html` in `epub_helper.py` to support chapter lookup by exact or partial chapter title (e.g. `'CHAPTER II. The Pool of Tears'`), href link, or 1-based index (e.g. `'5'`), enabling seamless tool chaining with `get_epub_toc`.
 

@@ -10,14 +10,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 # Mock mcp.server.fastmcp
 try:
-    import mcp.server.fastmcp
+    import mcp.server.fastmcp  # noqa: F401
+
 except ImportError:
     sys.modules["mcp.server.fastmcp"] = Mock()
     sys.modules["mcp"] = Mock()
     sys.modules["mcp.server"] = Mock()
 
 # Import the functions to test
-from ebook_mcp.main import (
+from epub_mcp.main import (
     get_all_epub_files,
     get_epub_metadata,
     get_epub_toc,
@@ -45,7 +46,7 @@ class TestEpubFunctions:
             result = get_all_epub_files(temp_dir)
             assert set(result) == {"book1.epub", "book2.epub"}
 
-    @patch("ebook_mcp.main.epub_helper.get_meta")
+    @patch("epub_mcp.main.epub_helper.get_meta")
     def test_get_epub_metadata_success(self, mock_get_meta):
         """Test get_epub_metadata successful case"""
         mock_metadata = {"title": "Test Book", "author": "Test Author", "language": "en"}
@@ -55,7 +56,7 @@ class TestEpubFunctions:
         assert result == mock_metadata
         mock_get_meta.assert_called_once_with("/path/to/test.epub")
 
-    @patch("ebook_mcp.main.epub_helper.get_meta")
+    @patch("epub_mcp.main.epub_helper.get_meta")
     def test_get_epub_metadata_file_not_found(self, mock_get_meta):
         """Test get_epub_metadata with file not found"""
         mock_get_meta.side_effect = FileNotFoundError("File not found")
@@ -63,7 +64,7 @@ class TestEpubFunctions:
         with pytest.raises(FileNotFoundError):
             get_epub_metadata("/path/to/nonexistent.epub")
 
-    @patch("ebook_mcp.main.epub_helper.get_meta")
+    @patch("epub_mcp.main.epub_helper.get_meta")
     def test_get_epub_metadata_parsing_error(self, mock_get_meta):
         """Test get_epub_metadata with parsing error"""
         mock_get_meta.side_effect = Exception("Parsing error")
@@ -71,7 +72,7 @@ class TestEpubFunctions:
         with pytest.raises(Exception):
             get_epub_metadata("/path/to/corrupted.epub")
 
-    @patch("ebook_mcp.main.epub_helper.get_toc")
+    @patch("epub_mcp.main.epub_helper.get_toc")
     def test_get_epub_toc_success(self, mock_get_toc):
         """Test get_epub_toc successful case"""
         mock_toc = [("Chapter 1", "chapter1.xhtml"), ("Chapter 2", "chapter2.xhtml")]
@@ -81,7 +82,7 @@ class TestEpubFunctions:
         assert result == mock_toc
         mock_get_toc.assert_called_once_with("/path/to/test.epub")
 
-    @patch("ebook_mcp.main.epub_helper.get_toc")
+    @patch("epub_mcp.main.epub_helper.get_toc")
     def test_get_epub_toc_file_not_found(self, mock_get_toc):
         """Test get_epub_toc with file not found"""
         mock_get_toc.side_effect = FileNotFoundError("File not found")
@@ -95,14 +96,14 @@ class TestMainModule:
 
     def test_main_module_imports(self):
         """Test that main module can be imported without errors"""
-        import ebook_mcp.main
+        import epub_mcp.main
 
-        assert hasattr(ebook_mcp.main, "mcp")
-        assert hasattr(ebook_mcp.main, "get_all_epub_files")
+        assert hasattr(epub_mcp.main, "mcp")
+        assert hasattr(epub_mcp.main, "get_all_epub_files")
 
     def test_prompts(self):
         """Test summarize_chapter and generate_quiz prompt templates"""
-        from ebook_mcp.main import generate_quiz, summarize_chapter
+        from epub_mcp.main import generate_quiz, summarize_chapter
 
         summary_prompt = summarize_chapter("/path/to/book.epub", "Chapter 1")
         assert "summarize the content of chapter 'Chapter 1'" in summary_prompt
@@ -112,11 +113,11 @@ class TestMainModule:
         assert "generate a 10-question study quiz" in quiz_prompt
         assert "'/path/to/book.epub'" in quiz_prompt
 
-    @patch("ebook_mcp.tools.epub_helper.extract_chapter_markdown")
-    @patch("ebook_mcp.tools.epub_helper.read_epub")
+    @patch("epub_mcp.tools.epub_helper.extract_chapter_markdown")
+    @patch("epub_mcp.tools.epub_helper.read_epub")
     def test_get_epub_chapter_markdown(self, mock_read_epub, mock_extract):
         """Test get_epub_chapter_markdown tool function"""
-        from ebook_mcp.main import get_epub_chapter_markdown
+        from epub_mcp.main import get_epub_chapter_markdown
 
         mock_read_epub.return_value = Mock()
         mock_extract.return_value = "# Chapter 1\n\nContent"
@@ -125,35 +126,35 @@ class TestMainModule:
         assert result == "# Chapter 1\n\nContent"
         mock_extract.assert_called_once()
 
-    @patch("ebook_mcp.main.mcp.run")
+    @patch("epub_mcp.main.mcp.run")
     def test_cli_entry_stdio(self, mock_mcp_run):
         """Test cli_entry function launches stdio transport"""
-        from ebook_mcp.main import cli_entry
+        from epub_mcp.main import cli_entry
 
         cli_entry()
         mock_mcp_run.assert_called_once_with(transport="stdio")
 
-    @patch("ebook_mcp.main.mcp.run")
+    @patch("epub_mcp.main.mcp.run")
     def test_cli_entry_sse_and_custom_hosts(self, mock_mcp_run):
         """Test cli_entry with sse transport and custom allowed hosts/origins"""
-        from ebook_mcp.main import cli_entry
+        from epub_mcp.main import cli_entry
 
         env_override = {
-            "EBOOK_MCP_TRANSPORT": "sse",
-            "EBOOK_MCP_ALLOWED_HOSTS": "example.com, myhost.com",
-            "EBOOK_MCP_ALLOWED_ORIGINS": "http://example.com, http://myhost.com",
-            "EBOOK_MCP_ALLOWED_DIR": "/library",
+            "EPUB_MCP_TRANSPORT": "sse",
+            "EPUB_MCP_ALLOWED_HOSTS": "example.com, myhost.com",
+            "EPUB_MCP_ALLOWED_ORIGINS": "http://example.com, http://myhost.com",
+            "EPUB_MCP_ALLOWED_DIR": "/library",
         }
         with patch.dict("os.environ", env_override):
             cli_entry()
             mock_mcp_run.assert_called_once_with(transport="sse")
 
-    @patch("ebook_mcp.main.cli_entry")
+    @patch("epub_mcp.main.cli_entry")
     def test_main_module_execution(self, mock_cli_entry):
         """Test __main__.py entrypoint invokes cli_entry"""
         import runpy
 
-        runpy.run_module("ebook_mcp", run_name="__main__")
+        runpy.run_module("epub_mcp", run_name="__main__")
         mock_cli_entry.assert_called_once()
 
 
@@ -162,7 +163,7 @@ class TestDecorators:
 
     def test_handle_mcp_errors_file_not_found(self):
         """Test handle_mcp_errors decorator with FileNotFoundError"""
-        from ebook_mcp.main import handle_mcp_errors
+        from epub_mcp.main import handle_mcp_errors
 
         @handle_mcp_errors
         def test_function():
@@ -173,7 +174,7 @@ class TestDecorators:
 
     def test_handle_mcp_errors_general_exception(self):
         """Test handle_mcp_errors decorator with general exception"""
-        from ebook_mcp.main import handle_mcp_errors
+        from epub_mcp.main import handle_mcp_errors
 
         @handle_mcp_errors
         def test_function():
@@ -184,7 +185,7 @@ class TestDecorators:
 
     def test_decorator_preserves_return_value(self):
         """Test that decorators preserve return values"""
-        from ebook_mcp.main import handle_mcp_errors
+        from epub_mcp.main import handle_mcp_errors
 
         @handle_mcp_errors
         def test_function():
@@ -195,8 +196,8 @@ class TestDecorators:
 
     def test_handle_mcp_errors_with_custom_exceptions(self):
         """Test handle_mcp_errors decorator with custom exceptions"""
-        from ebook_mcp.main import handle_mcp_errors
-        from ebook_mcp.tools.epub_helper import EpubProcessingError
+        from epub_mcp.main import handle_mcp_errors
+        from epub_mcp.tools.epub_helper import EpubProcessingError
 
         @handle_mcp_errors
         def test_epub_function():

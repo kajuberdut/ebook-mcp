@@ -1,32 +1,32 @@
-name: ebook-mcp
+name: epub-mcp
 
 services:
-  ebook-mcp:
+  epub-mcp:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ebook-mcp-server
+    container_name: epub-mcp-server
     restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      - EBOOK_MCP_TRANSPORT=sse
-      - EBOOK_MCP_HOST=0.0.0.0
-      - EBOOK_MCP_PORT=8000
-      - EBOOK_MCP_ALLOWED_DIR=/library
-      - EBOOK_MCP_LOG_LEVEL=INFO
-      - EBOOK_MCP_LOG_DIR=/home/ebookmcp/.local/state/ebook-mcp/logs
+      - EPUB_MCP_TRANSPORT=sse
+      - EPUB_MCP_HOST=0.0.0.0
+      - EPUB_MCP_PORT=8000
+      - EPUB_MCP_ALLOWED_DIR=/library
+      - EPUB_MCP_LOG_LEVEL=INFO
+      - EPUB_MCP_LOG_DIR=/home/epubmcp/.local/state/epub-mcp/logs
     volumes:
       # Mount sample e-books (or your custom library directory) to /library inside the container
       - ./sample_books:/library:ro
       # Persist application logs
-
-      - ebook-mcp-logs:/home/ebookmcp/.local/state/ebook-mcp/logs
+      - epub-mcp-logs:/home/epubmcp/.local/state/epub-mcp/logs
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
 
 volumes:
-  ebook-mcp-logs:
+  epub-mcp-logs:
     driver: local
+
