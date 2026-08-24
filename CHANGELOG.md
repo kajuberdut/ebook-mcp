@@ -15,7 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Module Execution**: Added `__main__.py` to support launching server via `python -m ebook_mcp`
 
+### 🗑️ Removed
+- **PDF Support Removal**: Removed all PDF processing dependencies (`PyMuPDF`), module helpers (`pdf_helper.py`), tool endpoints (`get_all_pdf_files`, `get_pdf_metadata`, `get_pdf_toc`, `get_pdf_page_text`, `get_pdf_page_markdown`, `get_pdf_chapter_content`), and unit tests (`test_pdf_helper.py`) to focus `ebook-mcp` strictly on EPUB e-books.
+
 ### 🔒 Security
+
 - **Unsafe Defaults Warning**: Added explicit runtime `logger.warning()` alerts in `cli_entry()` when FastMCP runs with wildcard allowed hosts/origins (`*`) or unconstrained file boundary directory settings (`EBOOK_MCP_ALLOWED_DIR` unset).
 - **DNS Rebinding & Transport Security Controls**: Configured `allowed_hosts` and `allowed_origins` in `cli_entry()` (with `EBOOK_MCP_ALLOWED_HOSTS` and `EBOOK_MCP_ALLOWED_ORIGINS` env var support) so FastMCP accepts container hostnames like `ebook-mcp-server` over SSE network transport without `421 Misdirected Request` errors.
 - **Path Traversal Protection & Security Validation**: Added `src/ebook_mcp/tools/security.py` module to resolve paths safely, enforce extension whitelists (`.epub`, `.pdf`), validate parameter bounds (`page_number >= 1`), and enforce optional directory scoping via `EBOOK_MCP_ALLOWED_DIR`.

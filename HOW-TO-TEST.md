@@ -9,8 +9,7 @@ src/ebook_mcp/tests/
 ├── conftest.py              # pytest configuration and shared fixtures
 ├── test_main.py             # Unit tests for main.py
 ├── test_epub_helper.py      # Unit tests for epub_helper.py
-├── test_pdf_helper.py       # Unit tests for pdf_helper.py
-└── run_tests.py             # Test runner script
+└── test_security.py         # Unit tests for security path validation
 ```
 
 ## Test Coverage
@@ -21,13 +20,6 @@ src/ebook_mcp/tests/
   - `get_epub_metadata`
   - `get_epub_toc`
   - `get_epub_chapter_markdown`
-- PDF tools tests:
-  - `get_all_pdf_files`
-  - `get_pdf_metadata`
-  - `get_pdf_toc`
-  - `get_pdf_page_text`
-  - `get_pdf_page_markdown`
-  - `get_pdf_chapter_content`
 - Error handling tests:
   - File non-existence
   - Parsing errors
@@ -38,14 +30,8 @@ src/ebook_mcp/tests/
 - EPUB parsing
 - Table of contents processing
 - HTML cleaning and conversion
-- Chapter extraction
+- Flexible chapter extraction (title, href, index)
 
-### pdf_helper.py Tests
-- PDF file operations
-- Metadata extraction
-- Table of contents extraction
-- Page text extraction
-- Chapter content extraction
 
 ## Running Tests
 
