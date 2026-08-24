@@ -7,7 +7,6 @@ import pytest
 from ebook_mcp.tools.security import (
     SecurityValidationError,
     validate_file_path,
-    validate_page_number,
 )
 
 
@@ -35,7 +34,7 @@ def test_validate_file_path_invalid_extension():
 
     try:
         with pytest.raises(SecurityValidationError, match="Invalid file extension"):
-            validate_file_path(temp_path, allowed_extensions={".epub", ".pdf"})
+            validate_file_path(temp_path, allowed_extensions={".epub"})
     finally:
         Path(temp_path).unlink(missing_ok=True)
 
@@ -60,14 +59,3 @@ def test_validate_file_path_allowed_dir():
 
             with pytest.raises(SecurityValidationError, match="Access denied"):
                 validate_file_path(bad_file, allowed_extensions={".epub"})
-
-
-def test_validate_page_number():
-    assert validate_page_number(1) == 1
-    assert validate_page_number(10) == 10
-
-    with pytest.raises(ValueError, match="Page numbers must be >= 1"):
-        validate_page_number(0)
-
-    with pytest.raises(ValueError, match="Page numbers must be >= 1"):
-        validate_page_number(-5)

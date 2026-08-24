@@ -47,10 +47,3 @@ def validate_file_path(
             )
 
     return resolved
-
-
-def validate_page_number(page_number: int) -> int:
-    """Validate page number bounds."""
-    if page_number < 1:
-        raise ValueError(f"Invalid page number {page_number}. Page numbers must be >= 1.")
-    return page_number

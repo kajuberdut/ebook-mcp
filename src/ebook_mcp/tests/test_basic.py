@@ -21,20 +21,6 @@ def test_get_all_epub_files_basic():
         assert set(result) == {"book1.epub", "book2.epub"}
 
 
-def test_get_all_pdf_files_basic():
-    """Test basic PDF file discovery without external dependencies"""
-    with tempfile.TemporaryDirectory() as temp_dir:
-        p = Path(temp_dir)
-        # Create mock PDF files
-        pdf_files = ["document1.pdf", "document2.pdf", "text.txt"]
-        for file in pdf_files:
-            (p / file).write_text("mock content")
-
-        # Test the basic file discovery logic
-        result = [f.name for f in p.glob("*.pdf") if f.is_file()]
-        assert set(result) == {"document1.pdf", "document2.pdf"}
-
-
 def test_file_not_found_error():
     """Test file not found error handling"""
     with pytest.raises(FileNotFoundError):
@@ -80,7 +66,6 @@ def test_directory_operations():
     "file_extension,expected_count",
     [
         (".epub", 2),
-        (".pdf", 1),
         (".txt", 3),
     ],
 )
@@ -92,7 +77,6 @@ def test_file_filtering(file_extension, expected_count):
         test_files = [
             "book1.epub",
             "book2.epub",
-            "document.pdf",
             "file1.txt",
             "file2.txt",
             "file3.txt",
