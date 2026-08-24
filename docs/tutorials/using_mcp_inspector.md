@@ -53,7 +53,7 @@ Open your browser and navigate to:
 Once the Inspector interface loads:
 
 1. Click on the **Tools** tab in the top navigation bar.
-2. Click **List Tools**. The Inspector will query `ebook-mcp-server` and display all registered tools alongside their JSON schemas, arguments, and docstrings.
+2. Click **List Tools**. The Inspector will query `epub-mcp-server` and display all registered tools alongside their JSON schemas, arguments, and docstrings.
 
 Notice how the AI model sees the tools:
 - **`get_all_epub_files`**: Lists all `.epub` e-books in a specified directory path.
@@ -122,7 +122,7 @@ Each chapter entry is returned as a `(title, href)` pair.
 
 Now, retrieve the complete content of Chapter 2.
 
-`ebook-mcp` implements a **4-tier flexible fallback search** for `chapter_id`, allowing you or an LLM to request chapters using any of the following formats:
+`epub-mcp` implements a **4-tier flexible fallback search** for `chapter_id`, allowing you or an LLM to request chapters using any of the following formats:
 
 1. **Human Chapter Title** (Recommended for LLMs):
    ```json
@@ -171,7 +171,7 @@ The tool returns formatted Markdown content ready for synthesis, summarization, 
 
 ## 5. Summary
 
-Using **MCP Inspector**, you can visually verify how LLM agents interact with `ebook-mcp`:
+Using **MCP Inspector**, you can visually verify how LLM agents interact with `epub-mcp`:
 1. Discover files with `get_all_epub_files`.
 2. Retrieve chapter listings with `get_epub_toc`.
 3. Extract chapter content seamlessly using `get_epub_chapter_markdown` with human-readable titles, indexes, or internal href links.

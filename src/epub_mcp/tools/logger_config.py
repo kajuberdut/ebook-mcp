@@ -103,7 +103,7 @@ def get_default_log_dir() -> Path:
     """Get opinionated Linux log directory using platformdirs (XDG state dir).
 
     1. EBOOK_MCP_LOG_DIR environment variable (if set)
-    2. platformdirs user_state_dir("ebook-mcp") / "logs" (~/.local/state/ebook-mcp/logs)
+    2. platformdirs user_state_dir("epub-mcp") / "logs" (~/.local/state/epub-mcp/logs)
     3. Fallback to temp directory if target directory is not writable
     """
     env_dir = os.getenv("EPUB_MCP_LOG_DIR", os.getenv("EBOOK_MCP_LOG_DIR"))

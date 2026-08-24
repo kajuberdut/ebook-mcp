@@ -84,5 +84,5 @@ uv run mcp dev src/ebook_mcp/main.py
 npx @modelcontextprotocol/inspector uv --directory . run src/ebook_mcp/main.py
 ```
 
-**Logging:** Files in `logs/ebook-mcp_server_YYYYMMDD_HHMMSS.log`, DEBUG level, console + file output
+**Logging:** Files in `logs/epub-mcp_server_YYYYMMDD_HHMMSS.log`, DEBUG level, console + file output
 

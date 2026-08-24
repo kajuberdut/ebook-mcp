@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test runner script for ebook-mcp project.
+Test runner script for epub-mcp project.
 This script runs all unit tests for the server components.
 """
 
@@ -14,12 +14,12 @@ SRC_DIR = THIS_DIR.parent.parent
 
 
 def run_tests():
-    """Run all tests for the ebook-mcp project"""
+    """Run all tests for the epub-mcp project"""
 
     # Add the src directory to Python path
     sys.path.insert(0, str(SRC_DIR))
 
-    print("Running ebook-mcp unit tests...")
+    print("Running epub-mcp unit tests...")
     print("=" * 50)
 
     # Run tests with pytest
